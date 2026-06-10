@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.RestOrange
 import me.algosketch.timelog.ui.theme.Surface
@@ -36,22 +39,17 @@ import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
 
-data class DailyRecord(
-    val date: String,
-    val sessionCount: Int,
-    val efficiencyPercent: Int,
-    val workTime: String,
-    val restTime: String,
-)
+@Composable
+fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    HistoryContent(uiState = uiState)
+}
 
 @Composable
-fun HistoryScreen() {
-    val records = listOf(
-        DailyRecord("6월 6일 (토)", 8, 80, "4시간 0분", "1시간 0분"),
-        DailyRecord("6월 5일 (금)", 12, 77, "5시간 0분", "1시간 30분"),
-        DailyRecord("6월 4일 (목)", 6, 81, "3시간 30분", "50분"),
-        DailyRecord("6월 3일 (수)", 10, 79, "4시간 30분", "1시간 10분"),
-    )
+private fun HistoryContent(uiState: HistoryUiState) {
+    val totalWorkHours = uiState.totalWorkTime / 60
+    val totalWorkMins = uiState.totalWorkTime % 60
+    val totalWorkDisplay = if (totalWorkMins == 0) "${totalWorkHours}h" else "${totalWorkHours}h ${totalWorkMins}분"
 
     LazyColumn(
         modifier = Modifier
@@ -64,15 +62,15 @@ fun HistoryScreen() {
         }
         item {
             MonthSummaryCard(
-                avgEfficiency = "79%",
-                totalWork = "24h",
-                recordedDays = "6일",
+                avgEfficiency = "${uiState.monthlyEfficiency}%",
+                totalWork = totalWorkDisplay,
+                recordedDays = "${uiState.recordedDays}일",
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
         item {
             DailyRecordSection(
-                records = records,
+                records = uiState.records,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
@@ -212,8 +210,8 @@ private fun DailyRecordSection(
 
 @Composable
 private fun DailyRecordCard(record: DailyRecord) {
-    val efficiencyColor = if (record.efficiencyPercent >= 80) WorkGreen else RestOrange
-    val efficiencyRatio = record.efficiencyPercent / 100f
+    val efficiencyColor = if (record.efficiency >= 80) WorkGreen else RestOrange
+    val efficiencyRatio = record.efficiency / 100f
 
     Column(
         modifier = Modifier
@@ -245,7 +243,7 @@ private fun DailyRecordCard(record: DailyRecord) {
                 )
             }
             Text(
-                text = "${record.efficiencyPercent}%",
+                text = "${record.efficiency}%",
                 fontSize = 18.sp,
                 fontFamily = FontFamily.Monospace,
                 fontWeight = FontWeight.Normal,
@@ -321,5 +319,14 @@ private fun DailyRecordCard(record: DailyRecord) {
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11)
 @Composable
 private fun PreviewHistoryScreen() {
-    HistoryScreen()
+    HistoryContent(
+        uiState = HistoryUiState(
+            records = listOf(
+                DailyRecord("6월 6일 (토)", 8, 80, "4시간 0분", "1시간 0분"),
+                DailyRecord("6월 5일 (금)", 12, 77, "5시간 0분", "1시간 30분"),
+                DailyRecord("6월 4일 (목)", 6, 81, "3시간 30분", "50분"),
+                DailyRecord("6월 3일 (수)", 10, 79, "4시간 30분", "1시간 10분"),
+            )
+        )
+    )
 }
