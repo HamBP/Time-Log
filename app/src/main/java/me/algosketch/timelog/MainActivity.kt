@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import me.algosketch.timelog.ui.screen.StopWatchScreen
+import me.algosketch.timelog.ui.navigation.AppNavigation
 import me.algosketch.timelog.ui.theme.TimeLogTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TimeLogTheme {
-                StopWatchScreen()
+                AppNavigation()
             }
         }
     }

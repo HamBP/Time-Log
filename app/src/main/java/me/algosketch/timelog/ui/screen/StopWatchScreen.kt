@@ -12,21 +12,17 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -70,66 +66,51 @@ fun StopWatchScreen(
     onWorkClick: () -> Unit = {},
     onRestClick: () -> Unit = {},
     onStopClick: () -> Unit = {},
-    onHistoryClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
             .statusBarsPadding()
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
+        item {
+            AppHeader(currentTime = currentTime, currentDate = currentDate)
+        }
+        item {
+            TimerDisplay(
+                timerState = timerState,
+                elapsedTime = elapsedTime,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
+            )
+        }
+        item {
+            ActionButtonList(
+                timerState = timerState,
+                workAccumulatedTime = workAccumulatedTime,
+                restAccumulatedTime = restAccumulatedTime,
+                onWorkClick = onWorkClick,
+                onRestClick = onRestClick,
+                onStopClick = onStopClick,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
+            )
+        }
+        if (todaySummary != null) {
             item {
-                AppHeader(currentTime = currentTime, currentDate = currentDate)
-            }
-            item {
-                TimerDisplay(
-                    timerState = timerState,
-                    elapsedTime = elapsedTime,
-                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
-                )
-            }
-            item {
-                ActionButtonList(
-                    timerState = timerState,
-                    workAccumulatedTime = workAccumulatedTime,
-                    restAccumulatedTime = restAccumulatedTime,
-                    onWorkClick = onWorkClick,
-                    onRestClick = onRestClick,
-                    onStopClick = onStopClick,
+                TodaySummaryCard(
+                    summary = todaySummary,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
                 )
             }
-            if (todaySummary != null) {
-                item {
-                    TodaySummaryCard(
-                        summary = todaySummary,
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
-                    )
-                }
-            }
-            if (sessions.isNotEmpty()) {
-                item {
-                    SessionLogSection(
-                        sessions = sessions,
-                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
-                    )
-                }
-            }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
-
-        BottomNavBar(
-            activeTab = 0,
-            onTimerClick = {},
-            onHistoryClick = onHistoryClick,
-            onSettingsClick = onSettingsClick
-        )
+        if (sessions.isNotEmpty()) {
+            item {
+                SessionLogSection(
+                    sessions = sessions,
+                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
+                )
+            }
+        }
+        item { Spacer(modifier = Modifier.height(16.dp)) }
     }
 }
 
@@ -593,78 +574,6 @@ private fun SessionItem(session: SessionEntry) {
     }
 }
 
-@Composable
-private fun BottomNavBar(
-    activeTab: Int,
-    onTimerClick: () -> Unit,
-    onHistoryClick: () -> Unit,
-    onSettingsClick: () -> Unit
-) {
-    val topBorderColor = Color.White.copy(alpha = 0.08f)
-    val tabs = listOf(
-        Triple("⏱", "타이머", onTimerClick),
-        Triple("📊", "히스토리", onHistoryClick),
-        Triple("⚙️", "설정", onSettingsClick)
-    )
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .height(64.dp)
-            .background(Background)
-            .drawBehind {
-                drawLine(
-                    color = topBorderColor,
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, 0f),
-                    strokeWidth = 1.dp.toPx()
-                )
-            }
-    ) {
-        tabs.forEachIndexed { index, (icon, label, onClick) ->
-            val isActive = index == activeTab
-            val color = if (isActive) WorkGreen else TextTertiary
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clickable(onClick = onClick),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isActive) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .width(32.dp)
-                            .height(2.dp)
-                            .clip(RoundedCornerShape(bottomStart = 2.dp, bottomEnd = 2.dp))
-                            .background(WorkGreen)
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(
-                        text = icon,
-                        fontSize = 20.sp,
-                        color = color,
-                        lineHeight = 30.sp
-                    )
-                    Text(
-                        text = label,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = color,
-                        lineHeight = 16.5.sp
-                    )
-                }
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Inactive")
 @Composable
