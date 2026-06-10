@@ -29,9 +29,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
-import me.algosketch.timelog.ui.screen.HistoryScreen
-import me.algosketch.timelog.ui.screen.SettingsScreen
-import me.algosketch.timelog.ui.screen.StopWatchScreen
+import me.algosketch.timelog.ui.feature.history.HistoryScreen
+import me.algosketch.timelog.ui.feature.settings.SettingsScreen
+import me.algosketch.timelog.ui.feature.stopwatch.StopWatchScreen
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen

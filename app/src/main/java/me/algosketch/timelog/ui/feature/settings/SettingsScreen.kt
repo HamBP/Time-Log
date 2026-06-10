@@ -1,4 +1,4 @@
-package me.algosketch.timelog.ui.screen
+package me.algosketch.timelog.ui.feature.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

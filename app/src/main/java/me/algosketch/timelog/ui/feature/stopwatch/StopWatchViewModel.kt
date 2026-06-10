@@ -1,4 +1,4 @@
-package me.algosketch.timelog.ui.screen
+package me.algosketch.timelog.ui.feature.stopwatch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
