@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +31,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.RestOrange
 import me.algosketch.timelog.ui.theme.Surface
@@ -38,34 +41,23 @@ import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
 
-enum class TimerState { IDLE, WORK, REST }
-
-data class SessionEntry(
-    val type: TimerState,
-    val time: String,
-    val duration: String
-)
-
-data class TodaySummary(
-    val workTime: String,
-    val efficiency: String,
-    val restTime: String,
-    val efficiencyRatio: Float
-)
+@Composable
+fun StopWatchScreen(viewModel: StopWatchViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    StopWatchContent(
+        uiState = uiState,
+        onWorkClick = viewModel::onWorkClick,
+        onRestClick = viewModel::onRestClick,
+        onStopClick = viewModel::onStopClick,
+    )
+}
 
 @Composable
-fun StopWatchScreen(
-    currentTime: String = "오전 03:22",
-    currentDate: String = "6월 7일 (일)",
-    timerState: TimerState = TimerState.IDLE,
-    elapsedTime: String = "00:00",
-    workAccumulatedTime: String = "00:00",
-    restAccumulatedTime: String = "00:00",
-    todaySummary: TodaySummary? = null,
-    sessions: List<SessionEntry> = emptyList(),
-    onWorkClick: () -> Unit = {},
-    onRestClick: () -> Unit = {},
-    onStopClick: () -> Unit = {},
+private fun StopWatchContent(
+    uiState: StopWatchUiState,
+    onWorkClick: () -> Unit,
+    onRestClick: () -> Unit,
+    onStopClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -74,38 +66,38 @@ fun StopWatchScreen(
             .statusBarsPadding()
     ) {
         item {
-            AppHeader(currentTime = currentTime, currentDate = currentDate)
+            AppHeader(currentTime = uiState.currentTime, currentDate = uiState.currentDate)
         }
         item {
             TimerDisplay(
-                timerState = timerState,
-                elapsedTime = elapsedTime,
+                timerState = uiState.timerState,
+                elapsedTime = uiState.elapsedTime,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
         item {
             ActionButtonList(
-                timerState = timerState,
-                workAccumulatedTime = workAccumulatedTime,
-                restAccumulatedTime = restAccumulatedTime,
+                timerState = uiState.timerState,
+                workAccumulatedTime = uiState.workAccumulatedTime,
+                restAccumulatedTime = uiState.restAccumulatedTime,
                 onWorkClick = onWorkClick,
                 onRestClick = onRestClick,
                 onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
             )
         }
-        if (todaySummary != null) {
+        if (uiState.todaySummary != null) {
             item {
                 TodaySummaryCard(
-                    summary = todaySummary,
+                    summary = uiState.todaySummary,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
                 )
             }
         }
-        if (sessions.isNotEmpty()) {
+        if (uiState.sessions.isNotEmpty()) {
             item {
                 SessionLogSection(
-                    sessions = sessions,
+                    sessions = uiState.sessions,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
                 )
             }
@@ -578,45 +570,50 @@ private fun SessionItem(session: SessionEntry) {
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Inactive")
 @Composable
 private fun PreviewInactive() {
-    StopWatchScreen(
-        currentTime = "오전 03:22",
-        currentDate = "6월 7일 (일)",
-        timerState = TimerState.IDLE
+    StopWatchContent(
+        uiState = StopWatchUiState(currentTime = "오전 03:22", currentDate = "6월 7일 (일)"),
+        onWorkClick = {}, onRestClick = {}, onStopClick = {}
     )
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Active - Work")
 @Composable
 private fun PreviewActiveWork() {
-    StopWatchScreen(
-        currentTime = "오전 12:17",
-        currentDate = "6월 11일 (목)",
-        timerState = TimerState.WORK,
-        elapsedTime = "00:02",
-        workAccumulatedTime = "00:02"
+    StopWatchContent(
+        uiState = StopWatchUiState(
+            currentTime = "오전 12:17",
+            currentDate = "6월 11일 (목)",
+            timerState = TimerState.WORK,
+            elapsedTime = "00:02",
+            workAccumulatedTime = "00:02"
+        ),
+        onWorkClick = {}, onRestClick = {}, onStopClick = {}
     )
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Logged")
 @Composable
 private fun PreviewLogged() {
-    StopWatchScreen(
-        currentTime = "오전 03:23",
-        currentDate = "6월 7일 (일)",
-        timerState = TimerState.IDLE,
-        workAccumulatedTime = "00:03",
-        restAccumulatedTime = "00:03",
-        todaySummary = TodaySummary(
-            workTime = "00:03",
-            efficiency = "48%",
-            restTime = "00:03",
-            efficiencyRatio = 0.48f
+    StopWatchContent(
+        uiState = StopWatchUiState(
+            currentTime = "오전 03:23",
+            currentDate = "6월 7일 (일)",
+            timerState = TimerState.IDLE,
+            workAccumulatedTime = "00:03",
+            restAccumulatedTime = "00:03",
+            todaySummary = TodaySummary(
+                workTime = "00:03",
+                efficiency = "48%",
+                restTime = "00:03",
+                efficiencyRatio = 0.48f
+            ),
+            sessions = listOf(
+                SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:01"),
+                SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:00"),
+                SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:03"),
+                SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:02"),
+            )
         ),
-        sessions = listOf(
-            SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:01"),
-            SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:00"),
-            SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:03"),
-            SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:02"),
-        )
+        onWorkClick = {}, onRestClick = {}, onStopClick = {}
     )
 }
