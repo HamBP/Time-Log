@@ -5,11 +5,7 @@ plugins {
 
 android {
     namespace = "me.algosketch.timelog"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "me.algosketch.timelog"
