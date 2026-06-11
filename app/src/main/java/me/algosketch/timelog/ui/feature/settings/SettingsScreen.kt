@@ -22,9 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,35 +37,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import me.algosketch.timelog.ui.theme.Background
-import me.algosketch.timelog.ui.theme.RestOrange
 import me.algosketch.timelog.ui.theme.Surface
 import me.algosketch.timelog.ui.theme.TextPrimary
 import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
 
-private val colorOptions = listOf(
-    Color(0xFF4ADE80),
-    Color(0xFFFB923C),
-    Color(0xFFA78BFA),
-    Color(0xFF60A5FA),
-    Color(0xFFF472B6),
-    Color(0xFFFBBF24),
-)
-
-private val iconOptions = listOf(
-    "▶", "☕", "📝", "📚", "💡", "🎯",
-    "🏃", "🎨", "💻", "🎵",
-)
+@Composable
+fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    SettingsContent(
+        uiState = uiState,
+        onShowAddForm = viewModel::onShowAddForm,
+        onNameChange = viewModel::onNameChange,
+        onColorSelect = viewModel::onColorSelect,
+        onIconSelect = viewModel::onIconSelect,
+        onAddType = viewModel::onAddType,
+        onCancelAddType = viewModel::onCancelAddType,
+        onEfficiencyToggle = viewModel::onEfficiencyToggle,
+    )
+}
 
 @Composable
-fun SettingsScreen() {
-    var showAddForm by remember { mutableStateOf(false) }
-    var newTypeName by remember { mutableStateOf("") }
-    var selectedColorIndex by remember { mutableStateOf(2) }
-    var selectedIconIndex by remember { mutableStateOf(2) }
-
+private fun SettingsContent(
+    uiState: SettingsUiState,
+    onShowAddForm: () -> Unit,
+    onNameChange: (String) -> Unit,
+    onColorSelect: (Int) -> Unit,
+    onIconSelect: (Int) -> Unit,
+    onAddType: () -> Unit,
+    onCancelAddType: () -> Unit,
+    onEfficiencyToggle: (Int) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,48 +97,27 @@ fun SettingsScreen() {
                 .padding(start = 24.dp, end = 24.dp, top = 10.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LogTypeCard(
-                icon = "▶",
-                name = "일하는 중",
-                subtitle = "효율성 포함",
-                accentColor = WorkGreen,
-                isEfficiencyIncluded = true,
-                onEditClick = {},
-                onEfficiencyToggle = {}
-            )
-            LogTypeCard(
-                icon = "☕",
-                name = "쉬는 중",
-                subtitle = "효율성 미포함",
-                accentColor = RestOrange,
-                isEfficiencyIncluded = false,
-                onEditClick = {},
-                onEfficiencyToggle = {}
-            )
+            uiState.logTypes.forEachIndexed { index, logType ->
+                LogTypeCard(
+                    logType = logType,
+                    onEditClick = {},
+                    onEfficiencyToggle = { onEfficiencyToggle(index) }
+                )
+            }
 
-            if (showAddForm) {
+            if (uiState.showAddForm) {
                 NewTypeFormCard(
-                    name = newTypeName,
-                    onNameChange = { newTypeName = it },
-                    selectedColorIndex = selectedColorIndex,
-                    onColorSelect = { selectedColorIndex = it },
-                    selectedIconIndex = selectedIconIndex,
-                    onIconSelect = { selectedIconIndex = it },
-                    onAdd = {
-                        showAddForm = false
-                        newTypeName = ""
-                        selectedColorIndex = 2
-                        selectedIconIndex = 2
-                    },
-                    onCancel = {
-                        showAddForm = false
-                        newTypeName = ""
-                        selectedColorIndex = 2
-                        selectedIconIndex = 2
-                    }
+                    name = uiState.newTypeName,
+                    onNameChange = onNameChange,
+                    selectedColorIndex = uiState.selectedColorIndex,
+                    onColorSelect = onColorSelect,
+                    selectedIconIndex = uiState.selectedIconIndex,
+                    onIconSelect = onIconSelect,
+                    onAdd = onAddType,
+                    onCancel = onCancelAddType,
                 )
             } else {
-                AddTypeButton(onClick = { showAddForm = true })
+                AddTypeButton(onClick = onShowAddForm)
             }
         }
 
@@ -171,14 +153,12 @@ private fun SettingsHeader() {
 
 @Composable
 private fun LogTypeCard(
-    icon: String,
-    name: String,
-    subtitle: String,
-    accentColor: Color,
-    isEfficiencyIncluded: Boolean,
+    logType: LogType,
     onEditClick: () -> Unit,
     onEfficiencyToggle: () -> Unit,
 ) {
+    val subtitle = if (logType.includeEfficiency) "효율성 포함" else "효율성 미포함"
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,14 +176,14 @@ private fun LogTypeCard(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
-                    .background(accentColor.copy(alpha = 0.08f)),
+                    .background(logType.color.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = icon, fontSize = 18.sp, lineHeight = 27.sp)
+                Text(text = logType.icon, fontSize = 18.sp, lineHeight = 27.sp)
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = name,
+                    text = logType.name,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium,
                     color = TextPrimary,
@@ -239,10 +219,10 @@ private fun LogTypeCard(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        val effBgColor = if (isEfficiencyIncluded) WorkGreen.copy(alpha = 0.05f) else Color.White.copy(alpha = 0.02f)
-        val effBorderColor = if (isEfficiencyIncluded) WorkGreen.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.06f)
-        val effTextColor = if (isEfficiencyIncluded) WorkGreen else TextTertiary
-        val effLabel = if (isEfficiencyIncluded) "✓  효율성 체크" else "○  효율성 체크"
+        val effBgColor = if (logType.includeEfficiency) logType.color.copy(alpha = 0.05f) else Color.White.copy(alpha = 0.02f)
+        val effBorderColor = if (logType.includeEfficiency) logType.color.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.06f)
+        val effTextColor = if (logType.includeEfficiency) logType.color else TextTertiary
+        val effLabel = if (logType.includeEfficiency) "✓  효율성 체크" else "○  효율성 체크"
 
         Row(
             modifier = Modifier
@@ -523,5 +503,14 @@ private fun IconOption(
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11)
 @Composable
 private fun PreviewSettingsScreen() {
-    SettingsScreen()
+    SettingsContent(
+        uiState = SettingsUiState(
+            logTypes = listOf(
+                LogType("일하는 중", "▶", Color(0xFF4ADE80), true),
+                LogType("쉬는 중", "☕", Color(0xFFFB923C), false),
+            )
+        ),
+        onShowAddForm = {}, onNameChange = {}, onColorSelect = {},
+        onIconSelect = {}, onAddType = {}, onCancelAddType = {}, onEfficiencyToggle = {},
+    )
 }
