@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
+import javax.inject.Inject
 
 enum class TimerState { IDLE, WORK, REST }
 
@@ -26,7 +28,8 @@ data class TodaySummary(
     val efficiencyRatio: Float
 )
 
-class StopWatchViewModel : ViewModel() {
+@HiltViewModel
+class StopWatchViewModel @Inject constructor() : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopWatchUiState())
     val uiState: StateFlow<StopWatchUiState> = _uiState.asStateFlow()

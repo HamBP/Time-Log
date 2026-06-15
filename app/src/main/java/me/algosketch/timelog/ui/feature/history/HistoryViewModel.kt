@@ -1,10 +1,13 @@
 package me.algosketch.timelog.ui.feature.history
 
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class HistoryViewModel : ViewModel() {
+@HiltViewModel
+class HistoryViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(
         HistoryUiState(
             records = listOf(
