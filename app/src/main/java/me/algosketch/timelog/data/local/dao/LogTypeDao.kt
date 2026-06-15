@@ -14,7 +14,7 @@ interface LogTypeDao {
     fun getAll(): Flow<List<LogTypeEntity>>
 
     @Insert
-    suspend fun insert(logType: LogTypeEntity): Int
+    suspend fun insert(logType: LogTypeEntity)
 
     @Update
     suspend fun update(logType: LogTypeEntity)

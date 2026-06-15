@@ -14,7 +14,7 @@ interface LogSessionDao {
     fun getAll(): Flow<List<LogSessionEntity>>
 
     @Insert
-    suspend fun insert(logSession: LogSessionEntity): Int
+    suspend fun insert(logSession: LogSessionEntity)
 
     @Update
     suspend fun update(logSession: LogSessionEntity)
