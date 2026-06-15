@@ -1,5 +1,6 @@
 package me.algosketch.timelog.ui.feature.stopwatch
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,26 +12,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.algosketch.timelog.data.LogRepository
-import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
+import me.algosketch.timelog.ui.theme.toComposeColor
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
-
-enum class TimerState { IDLE, WORK, REST }
-
-data class SessionEntry(
-    val type: TimerState,
-    val time: String,
-    val duration: String
-)
-
-data class TodaySummary(
-    val workTime: String,
-    val efficiency: String,
-    val restTime: String,
-    val efficiencyRatio: Float
-)
 
 @HiltViewModel
 class StopWatchViewModel @Inject constructor(
@@ -41,161 +27,158 @@ class StopWatchViewModel @Inject constructor(
     val uiState: StateFlow<StopWatchUiState> = _uiState.asStateFlow()
 
     private var elapsedSeconds = 0L
-    private var workAccumulatedSeconds = 0L
-    private var restAccumulatedSeconds = 0L
     private var sessionStartTime: LocalDateTime? = null
     private var timerJob: Job? = null
-    private var workTypeId: Int? = null
-    private var restTypeId: Int? = null
+    private val accumulatedSeconds = mutableMapOf<Int, Long>()
+    private var currentTypes = listOf<LogTypeEntity>()
 
     init {
         viewModelScope.launch {
             while (true) {
-                _uiState.update {
-                    it.copy(currentTime = formatCurrentTime(), currentDate = formatCurrentDate())
-                }
+                _uiState.update { it.copy(currentTime = formatCurrentTime(), currentDate = formatCurrentDate()) }
                 delay(1000L)
             }
         }
         viewModelScope.launch {
-            loadFromDb()
+            repository.getLogTypesFlow().collect { types ->
+                currentTypes = types
+                _uiState.update { state ->
+                    state.copy(
+                        logTypes = buildLogTypeUiItems(),
+                        todaySummary = computeTodaySummary(),
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            loadSessionsFromDb()
         }
     }
 
-    private suspend fun loadFromDb() {
+    private suspend fun loadSessionsFromDb() {
         val types = repository.getActiveLogTypes()
-        workTypeId = types.firstOrNull { it.includeEfficiency }?.id
-        restTypeId = types.firstOrNull { !it.includeEfficiency }?.id
-
         val dbSessions = repository.getTodaySessions()
-        if (dbSessions.isEmpty()) return
-
-        val (sessions, workSecs, restSecs) = mapToSessionEntries(types, dbSessions)
-        workAccumulatedSeconds = workSecs
-        restAccumulatedSeconds = restSecs
-        _uiState.update { state ->
-            state.copy(
-                sessions = sessions,
-                workAccumulatedTime = formatElapsed(workSecs),
-                restAccumulatedTime = formatElapsed(restSecs),
-                todaySummary = computeTodaySummary()
-            )
-        }
-    }
-
-    private fun mapToSessionEntries(
-        types: List<LogTypeEntity>,
-        dbSessions: List<LogSessionEntity>,
-    ): Triple<List<SessionEntry>, Long, Long> {
-        val workId = types.firstOrNull { it.includeEfficiency }?.id
-        val restId = types.firstOrNull { !it.includeEfficiency }?.id
-        var workSecs = 0L
-        var restSecs = 0L
-        val entries = mutableListOf<SessionEntry>()
 
         for (session in dbSessions) {
             val duration = session.endedAt.toEpochSecond(ZoneOffset.UTC) -
                     session.startedAt.toEpochSecond(ZoneOffset.UTC)
-            val timerState = when (session.typeId) {
-                workId -> { workSecs += duration; TimerState.WORK }
-                restId -> { restSecs += duration; TimerState.REST }
-                else -> null
-            } ?: continue
-            entries.add(SessionEntry(
-                type = timerState,
-                time = formatSessionTime(session.startedAt),
-                duration = formatElapsed(duration)
-            ))
+            accumulatedSeconds[session.typeId] = (accumulatedSeconds[session.typeId] ?: 0L) + duration
         }
-        return Triple(entries, workSecs, restSecs)
+
+        if (dbSessions.isEmpty()) return
+
+        val sessionEntries = dbSessions.map { session ->
+            val type = types.firstOrNull { it.id == session.typeId }
+            val duration = session.endedAt.toEpochSecond(ZoneOffset.UTC) -
+                    session.startedAt.toEpochSecond(ZoneOffset.UTC)
+            SessionEntry(
+                typeName = type?.name ?: "",
+                color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
+                time = formatSessionTime(session.startedAt),
+                duration = formatElapsed(duration),
+            )
+        }
+
+        _uiState.update { state ->
+            state.copy(
+                sessions = sessionEntries,
+                logTypes = buildLogTypeUiItems(types),
+                todaySummary = computeTodaySummary(types),
+            )
+        }
     }
 
-    fun onWorkClick() {
-        val prev = _uiState.value.timerState
-        if (prev == TimerState.WORK) return
-        if (prev != TimerState.IDLE) finishSession(prev)
-        startSession(TimerState.WORK)
-    }
-
-    fun onRestClick() {
-        val prev = _uiState.value.timerState
-        if (prev == TimerState.REST) return
-        if (prev != TimerState.IDLE) finishSession(prev)
-        startSession(TimerState.REST)
+    fun onTypeClick(typeId: Int) {
+        val current = _uiState.value.activeTypeId
+        if (current == typeId) return
+        if (current != null) finishSession(current)
+        startSession(typeId)
     }
 
     fun onStopClick() {
-        val prev = _uiState.value.timerState
-        if (prev == TimerState.IDLE) return
-        finishSession(prev)
+        val current = _uiState.value.activeTypeId ?: return
+        finishSession(current)
         elapsedSeconds = 0L
-        _uiState.update { it.copy(timerState = TimerState.IDLE, elapsedTime = formatElapsed(0L)) }
+        _uiState.update { it.copy(
+            activeTypeId = null,
+            elapsedTime = formatElapsed(0L),
+            logTypes = buildLogTypeUiItems(activeTypeId = null),
+        ) }
     }
 
-    private fun startSession(type: TimerState) {
+    private fun startSession(typeId: Int) {
         timerJob?.cancel()
         elapsedSeconds = 0L
         sessionStartTime = LocalDateTime.now()
-        _uiState.update { it.copy(timerState = type, elapsedTime = formatElapsed(0L)) }
+        _uiState.update { it.copy(
+            activeTypeId = typeId,
+            elapsedTime = formatElapsed(0L),
+            logTypes = buildLogTypeUiItems(activeTypeId = typeId),
+        ) }
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(1000L)
                 elapsedSeconds++
-                when (type) {
-                    TimerState.WORK -> workAccumulatedSeconds++
-                    TimerState.REST -> restAccumulatedSeconds++
-                    TimerState.IDLE -> {}
-                }
+                accumulatedSeconds[typeId] = (accumulatedSeconds[typeId] ?: 0L) + 1L
                 _uiState.update { state ->
                     state.copy(
                         elapsedTime = formatElapsed(elapsedSeconds),
-                        workAccumulatedTime = formatElapsed(workAccumulatedSeconds),
-                        restAccumulatedTime = formatElapsed(restAccumulatedSeconds),
-                        todaySummary = computeTodaySummary()
+                        logTypes = buildLogTypeUiItems(activeTypeId = typeId),
+                        todaySummary = computeTodaySummary(),
                     )
                 }
             }
         }
     }
 
-    private fun finishSession(type: TimerState) {
+    private fun finishSession(typeId: Int) {
         timerJob?.cancel()
         val startTime = sessionStartTime ?: return
         val endTime = startTime.plusSeconds(elapsedSeconds)
 
-        val typeId = when (type) {
-            TimerState.WORK -> workTypeId
-            TimerState.REST -> restTypeId
-            TimerState.IDLE -> null
-        }
-        if (typeId != null) {
-            viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
-        }
+        viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
 
+        val type = currentTypes.firstOrNull { it.id == typeId }
         val entry = SessionEntry(
-            type = type,
+            typeName = type?.name ?: "",
+            color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
             time = formatSessionTime(startTime),
-            duration = formatElapsed(elapsedSeconds)
+            duration = formatElapsed(elapsedSeconds),
         )
         _uiState.update { state ->
             state.copy(
                 sessions = listOf(entry) + state.sessions,
-                workAccumulatedTime = formatElapsed(workAccumulatedSeconds),
-                restAccumulatedTime = formatElapsed(restAccumulatedSeconds),
-                todaySummary = computeTodaySummary()
+                logTypes = buildLogTypeUiItems(),
+                todaySummary = computeTodaySummary(),
             )
         }
     }
 
-    private fun computeTodaySummary(): TodaySummary? {
-        val total = workAccumulatedSeconds + restAccumulatedSeconds
+    private fun buildLogTypeUiItems(
+        types: List<LogTypeEntity> = currentTypes,
+        activeTypeId: Int? = _uiState.value.activeTypeId,
+    ): List<LogTypeUiItem> = types.map { type ->
+        LogTypeUiItem(
+            id = type.id,
+            name = type.name,
+            icon = type.icon,
+            color = type.colorHex.toComposeColor(),
+            accumulatedTime = formatElapsed(accumulatedSeconds[type.id] ?: 0L),
+            isActive = type.id == activeTypeId,
+            includeEfficiency = type.includeEfficiency,
+        )
+    }
+
+    private fun computeTodaySummary(types: List<LogTypeEntity> = currentTypes): TodaySummary? {
+        val workSecs = types.filter { it.includeEfficiency }.sumOf { accumulatedSeconds[it.id] ?: 0L }
+        val restSecs = types.filter { !it.includeEfficiency }.sumOf { accumulatedSeconds[it.id] ?: 0L }
+        val total = workSecs + restSecs
         if (total == 0L) return null
-        val efficiencyPct = (workAccumulatedSeconds * 100L / total).toInt()
         return TodaySummary(
-            workTime = formatElapsed(workAccumulatedSeconds),
-            efficiency = "$efficiencyPct%",
-            restTime = formatElapsed(restAccumulatedSeconds),
-            efficiencyRatio = workAccumulatedSeconds.toFloat() / total
+            workTime = formatElapsed(workSecs),
+            efficiency = "${(workSecs * 100L / total).toInt()}%",
+            restTime = formatElapsed(restSecs),
+            efficiencyRatio = workSecs.toFloat() / total,
         )
     }
 
