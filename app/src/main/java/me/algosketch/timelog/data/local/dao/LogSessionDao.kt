@@ -13,6 +13,9 @@ interface LogSessionDao {
     @Query("SELECT * FROM log_sessions")
     fun getAll(): Flow<List<LogSessionEntity>>
 
+    @Query("SELECT * FROM log_sessions WHERE startedAt >= :startOfDay ORDER BY startedAt DESC")
+    suspend fun getSessionsAfter(startOfDay: Long): List<LogSessionEntity>
+
     @Insert
     suspend fun insert(logSession: LogSessionEntity)
 

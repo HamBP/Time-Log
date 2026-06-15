@@ -13,6 +13,9 @@ interface LogTypeDao {
     @Query("SELECT * FROM log_types")
     fun getAll(): Flow<List<LogTypeEntity>>
 
+    @Query("SELECT * FROM log_types WHERE isActive = 1 ORDER BY sortOrder ASC")
+    suspend fun getAllActive(): List<LogTypeEntity>
+
     @Insert
     suspend fun insert(logType: LogTypeEntity)
 

@@ -2,6 +2,7 @@ package me.algosketch.timelog.ui.feature.stopwatch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,8 +10,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import dagger.hilt.android.lifecycle.HiltViewModel
+import me.algosketch.timelog.data.LogRepository
+import me.algosketch.timelog.data.local.entity.LogSessionEntity
+import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 
 enum class TimerState { IDLE, WORK, REST }
@@ -29,7 +33,9 @@ data class TodaySummary(
 )
 
 @HiltViewModel
-class StopWatchViewModel @Inject constructor() : ViewModel() {
+class StopWatchViewModel @Inject constructor(
+    private val repository: LogRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopWatchUiState())
     val uiState: StateFlow<StopWatchUiState> = _uiState.asStateFlow()
@@ -39,6 +45,8 @@ class StopWatchViewModel @Inject constructor() : ViewModel() {
     private var restAccumulatedSeconds = 0L
     private var sessionStartTime: LocalDateTime? = null
     private var timerJob: Job? = null
+    private var workTypeId: Int? = null
+    private var restTypeId: Int? = null
 
     init {
         viewModelScope.launch {
@@ -49,6 +57,57 @@ class StopWatchViewModel @Inject constructor() : ViewModel() {
                 delay(1000L)
             }
         }
+        viewModelScope.launch {
+            loadFromDb()
+        }
+    }
+
+    private suspend fun loadFromDb() {
+        val types = repository.getActiveLogTypes()
+        workTypeId = types.firstOrNull { it.includeEfficiency }?.id
+        restTypeId = types.firstOrNull { !it.includeEfficiency }?.id
+
+        val dbSessions = repository.getTodaySessions()
+        if (dbSessions.isEmpty()) return
+
+        val (sessions, workSecs, restSecs) = mapToSessionEntries(types, dbSessions)
+        workAccumulatedSeconds = workSecs
+        restAccumulatedSeconds = restSecs
+        _uiState.update { state ->
+            state.copy(
+                sessions = sessions,
+                workAccumulatedTime = formatElapsed(workSecs),
+                restAccumulatedTime = formatElapsed(restSecs),
+                todaySummary = computeTodaySummary()
+            )
+        }
+    }
+
+    private fun mapToSessionEntries(
+        types: List<LogTypeEntity>,
+        dbSessions: List<LogSessionEntity>,
+    ): Triple<List<SessionEntry>, Long, Long> {
+        val workId = types.firstOrNull { it.includeEfficiency }?.id
+        val restId = types.firstOrNull { !it.includeEfficiency }?.id
+        var workSecs = 0L
+        var restSecs = 0L
+        val entries = mutableListOf<SessionEntry>()
+
+        for (session in dbSessions) {
+            val duration = session.endedAt.toEpochSecond(ZoneOffset.UTC) -
+                    session.startedAt.toEpochSecond(ZoneOffset.UTC)
+            val timerState = when (session.typeId) {
+                workId -> { workSecs += duration; TimerState.WORK }
+                restId -> { restSecs += duration; TimerState.REST }
+                else -> null
+            } ?: continue
+            entries.add(SessionEntry(
+                type = timerState,
+                time = formatSessionTime(session.startedAt),
+                duration = formatElapsed(duration)
+            ))
+        }
+        return Triple(entries, workSecs, restSecs)
     }
 
     fun onWorkClick() {
@@ -102,6 +161,17 @@ class StopWatchViewModel @Inject constructor() : ViewModel() {
     private fun finishSession(type: TimerState) {
         timerJob?.cancel()
         val startTime = sessionStartTime ?: return
+        val endTime = startTime.plusSeconds(elapsedSeconds)
+
+        val typeId = when (type) {
+            TimerState.WORK -> workTypeId
+            TimerState.REST -> restTypeId
+            TimerState.IDLE -> null
+        }
+        if (typeId != null) {
+            viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
+        }
+
         val entry = SessionEntry(
             type = type,
             time = formatSessionTime(startTime),

@@ -15,4 +15,5 @@ data class LogTypeEntity(
     val sortOrder: Int,
     val isDefault: Boolean = false,
     val isActive: Boolean = true,
+    val includeEfficiency: Boolean = true,
 )
