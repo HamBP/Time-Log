@@ -3,6 +3,7 @@ package me.algosketch.timelog.data
 import kotlinx.coroutines.flow.Flow
 import me.algosketch.timelog.data.local.dao.LogSessionDao
 import me.algosketch.timelog.data.local.dao.LogTypeDao
+import me.algosketch.timelog.data.local.entity.DailyAggregate
 import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import java.time.LocalDate
@@ -49,4 +50,6 @@ class LogRepository @Inject constructor(
         val startOfDay = LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)
         return logSessionDao.getSessionsAfter(startOfDay)
     }
+
+    fun getDailyAggregatesFlow(): Flow<List<DailyAggregate>> = logSessionDao.getDailyAggregates()
 }
