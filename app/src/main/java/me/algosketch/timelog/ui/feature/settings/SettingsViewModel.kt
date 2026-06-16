@@ -1,24 +1,35 @@
 package me.algosketch.timelog.ui.feature.settings
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import me.algosketch.timelog.data.LogRepository
+import me.algosketch.timelog.data.local.entity.LogTypeEntity
+import me.algosketch.timelog.ui.theme.toComposeColor
+import me.algosketch.timelog.ui.theme.toHex
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor() : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        SettingsUiState(
-            logTypes = listOf(
-                LogType("일하는 중", "▶", Color(0xFF4ADE80), true),
-                LogType("쉬는 중", "☕", Color(0xFFFB923C), false),
-            )
-        )
-    )
+class SettingsViewModel @Inject constructor(
+    private val repository: LogRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.getLogTypesFlow().collect { entities ->
+                _uiState.update { state ->
+                    state.copy(logTypes = entities.map { it.toDomain() })
+                }
+            }
+        }
+    }
 
     fun onShowAddForm() {
         _uiState.update { it.copy(showAddForm = true) }
@@ -39,15 +50,16 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     fun onAddType() {
         val state = _uiState.value
         if (state.newTypeName.isBlank()) return
-        val newType = LogType(
-            name = state.newTypeName,
-            icon = iconOptions[state.selectedIconIndex],
-            color = colorOptions[state.selectedColorIndex],
-            includeEfficiency = true,
-        )
+        viewModelScope.launch {
+            repository.addLogType(
+                name = state.newTypeName,
+                colorHex = colorOptions[state.selectedColorIndex].toHex(),
+                icon = iconOptions[state.selectedIconIndex],
+                includeEfficiency = true,
+            )
+        }
         _uiState.update {
             it.copy(
-                logTypes = it.logTypes + newType,
                 showAddForm = false,
                 newTypeName = "",
                 selectedColorIndex = 2,
@@ -68,12 +80,17 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onEfficiencyToggle(index: Int) {
-        _uiState.update { state ->
-            state.copy(
-                logTypes = state.logTypes.mapIndexed { i, type ->
-                    if (i == index) type.copy(includeEfficiency = !type.includeEfficiency) else type
-                }
-            )
+        val type = _uiState.value.logTypes.getOrNull(index) ?: return
+        viewModelScope.launch {
+            repository.updateLogTypeEfficiency(type.id, !type.includeEfficiency)
         }
     }
 }
+
+private fun LogTypeEntity.toDomain() = LogType(
+    id = id,
+    name = name,
+    icon = icon,
+    color = colorHex.toComposeColor(),
+    includeEfficiency = includeEfficiency,
+)
