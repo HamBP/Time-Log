@@ -18,7 +18,13 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FreeBreakfast
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +46,7 @@ import me.algosketch.timelog.ui.theme.TextPrimary
 import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
+import me.algosketch.timelog.ui.util.toMaterialIcon
 
 @Composable
 fun StopWatchScreen(viewModel: StopWatchViewModel = viewModel()) {
@@ -221,7 +228,7 @@ private fun ActionButtonList(
     ) {
         logTypes.forEach { logType ->
             TimerActionButton(
-                icon = logType.icon,
+                icon = logType.icon.toMaterialIcon(),
                 title = logType.name,
                 subtitle = if (logType.includeEfficiency) "집중 시간 기록" else "휴식 시간 기록",
                 time = logType.accumulatedTime,
@@ -236,7 +243,7 @@ private fun ActionButtonList(
 
 @Composable
 private fun TimerActionButton(
-    icon: String,
+    icon: ImageVector,
     title: String,
     subtitle: String,
     time: String,
@@ -267,11 +274,11 @@ private fun TimerActionButton(
                 .background(iconBgColor),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = icon,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = textColor
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = textColor
             )
         }
         Column(modifier = Modifier.weight(1f)) {
@@ -321,11 +328,11 @@ private fun StopActionButton(onClick: () -> Unit) {
                 .background(TextTertiary.copy(alpha = 0.09f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "⏹",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = TextSecondary
+            Icon(
+                imageVector = Icons.Default.Stop,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = TextSecondary
             )
         }
         Column {

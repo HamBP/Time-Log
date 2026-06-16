@@ -11,8 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,10 +92,10 @@ internal fun BottomNavBar(
     onSettingsClick: () -> Unit
 ) {
     val topBorderColor = Color.White.copy(alpha = 0.08f)
-    val tabs = listOf(
-        Triple("⏱", "타이머", onTimerClick),
-        Triple("📊", "히스토리", onHistoryClick),
-        Triple("⚙️", "설정", onSettingsClick)
+    val tabs: List<Triple<ImageVector, String, () -> Unit>> = listOf(
+        Triple(Icons.Default.Timer, "타이머", onTimerClick),
+        Triple(Icons.Default.BarChart, "히스토리", onHistoryClick),
+        Triple(Icons.Default.Settings, "설정", onSettingsClick)
     )
 
     Row(
@@ -131,11 +138,11 @@ internal fun BottomNavBar(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(
-                        text = icon,
-                        fontSize = 20.sp,
-                        color = color,
-                        lineHeight = 30.sp
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        modifier = Modifier.size(22.dp),
+                        tint = color
                     )
                     Text(
                         text = label,

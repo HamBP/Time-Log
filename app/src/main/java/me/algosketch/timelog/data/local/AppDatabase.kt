@@ -8,7 +8,7 @@ import me.algosketch.timelog.data.local.dao.LogTypeDao
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.data.local.entity.LogSessionEntity
 
-@Database(entities = [LogTypeEntity::class, LogSessionEntity::class], version = 3)
+@Database(entities = [LogTypeEntity::class, LogSessionEntity::class], version = 4)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun logTypeDao(): LogTypeDao
