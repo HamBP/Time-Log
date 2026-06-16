@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">タイムログ</string>
+
+    <!-- App header -->
+    <string name="app_header_label">タイムログ</string>
+
+    <!-- StopWatch -->
+    <string name="status_waiting">待機中</string>
+    <string name="status_current_session">現在のセッション</string>
+    <string name="hint_tap_to_start">ボタンを押して開始</string>
+    <string name="label_focus_record">集中時間の記録</string>
+    <string name="label_rest_record">休憩時間の記録</string>
+    <string name="btn_stop">停止</string>
+    <string name="btn_stop_subtitle">タイマー停止</string>
+    <string name="today_summary_title">今日の概要</string>
+    <string name="label_work">作業</string>
+    <string name="label_efficiency">効率</string>
+    <string name="label_rest">休憩</string>
+    <string name="session_log_title">セッション記録</string>
+
+    <!-- Settings -->
+    <string name="settings_label">設定</string>
+    <string name="settings_title">タイムログ管理</string>
+    <string name="log_type_section_title">ログタイプ</string>
+    <string name="efficiency_included">効率を含む</string>
+    <string name="efficiency_excluded">効率を除く</string>
+    <string name="btn_edit">編集</string>
+    <string name="efficiency_check_on">✓  効率チェック</string>
+    <string name="efficiency_check_off">○  効率チェック</string>
+    <string name="btn_add_type">+  新しいタイプ追加</string>
+    <string name="new_type_form_title">新しいログタイプ</string>
+    <string name="field_name">名前</string>
+    <string name="field_name_hint">例：勉強中</string>
+    <string name="field_color">色</string>
+    <string name="field_icon">アイコン</string>
+    <string name="btn_add">追加</string>
+    <string name="btn_cancel">キャンセル</string>
+
+    <!-- History -->
+    <string name="history_label">履歴</string>
+    <string name="history_title">今月の生産性</string>
+    <string name="label_avg_efficiency">平均効率</string>
+    <string name="label_total_work">総作業</string>
+    <string name="label_recorded_days">記録日数</string>
+    <string name="daily_record_title">日別記録</string>
+    <string name="session_count">%dセッション</string>
+    <string name="recorded_days_value">%d日</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">タイマー</string>
+    <string name="nav_history">履歴</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Duration formats -->
+    <string name="duration_hours_only">%d時間</string>
+    <string name="duration_hours_and_minutes">%1$d時間%2$d分</string>
+    <string name="duration_minutes_only">%d分</string>
+
+    <!-- Date/time format patterns -->
+    <string name="time_format_pattern">a h:mm</string>
+    <string name="date_format_pattern">M月d日(EEE)</string>
+</resources>
