@@ -8,7 +8,7 @@ import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,7 +47,7 @@ class LogRepository @Inject constructor(
     }
 
     suspend fun getTodaySessions(): List<LogSessionEntity> {
-        val startOfDay = LocalDate.now().atStartOfDay().toEpochSecond(ZoneOffset.UTC)
+        val startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
         return logSessionDao.getSessionsAfter(startOfDay)
     }
 

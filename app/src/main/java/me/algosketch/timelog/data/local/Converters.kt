@@ -1,16 +1,16 @@
 package me.algosketch.timelog.data.local
 
 import androidx.room.TypeConverter
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 class Converters {
     @TypeConverter
-    fun fromTimestamp(value: Long?): LocalDateTime? {
-        return value?.let { LocalDateTime.ofEpochSecond(it, 0, java.time.ZoneOffset.UTC) }
-    }
+    fun fromTimestamp(value: Long?): LocalDateTime? =
+        value?.let { LocalDateTime.ofInstant(Instant.ofEpochSecond(it), ZoneId.systemDefault()) }
 
     @TypeConverter
-    fun dateTimeToTimestamp(dateTime: LocalDateTime?): Long? {
-        return dateTime?.toEpochSecond(java.time.ZoneOffset.UTC)
-    }
+    fun dateTimeToTimestamp(dateTime: LocalDateTime?): Long? =
+        dateTime?.atZone(ZoneId.systemDefault())?.toEpochSecond()
 }

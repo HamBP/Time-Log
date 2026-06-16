@@ -15,7 +15,6 @@ import me.algosketch.timelog.data.LogRepository
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.ui.theme.toComposeColor
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -61,8 +60,7 @@ class StopWatchViewModel @Inject constructor(
         val dbSessions = repository.getTodaySessions()
 
         for (session in dbSessions) {
-            val duration = session.endedAt.toEpochSecond(ZoneOffset.UTC) -
-                    session.startedAt.toEpochSecond(ZoneOffset.UTC)
+            val duration = ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)
             accumulatedSeconds[session.typeId] = (accumulatedSeconds[session.typeId] ?: 0L) + duration
         }
 
@@ -70,8 +68,7 @@ class StopWatchViewModel @Inject constructor(
 
         val sessionEntries = dbSessions.map { session ->
             val type = types.firstOrNull { it.id == session.typeId }
-            val duration = session.endedAt.toEpochSecond(ZoneOffset.UTC) -
-                    session.startedAt.toEpochSecond(ZoneOffset.UTC)
+            val duration = ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)
             SessionEntry(
                 typeName = type?.name ?: "",
                 color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
