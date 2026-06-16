@@ -25,8 +25,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import me.algosketch.timelog.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,7 +51,10 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
 private fun HistoryContent(uiState: HistoryUiState) {
     val totalWorkHours = uiState.totalWorkTime / 60
     val totalWorkMins = uiState.totalWorkTime % 60
-    val totalWorkDisplay = if (totalWorkMins == 0) "${totalWorkHours}h" else "${totalWorkHours}h ${totalWorkMins}분"
+    val totalWorkDisplay = if (totalWorkMins == 0)
+        stringResource(R.string.duration_hours_only, totalWorkHours)
+    else
+        stringResource(R.string.duration_hours_and_minutes, totalWorkHours, totalWorkMins)
 
     LazyColumn(
         modifier = Modifier
@@ -64,7 +69,7 @@ private fun HistoryContent(uiState: HistoryUiState) {
             MonthSummaryCard(
                 avgEfficiency = "${uiState.monthlyEfficiency}%",
                 totalWork = totalWorkDisplay,
-                recordedDays = "${uiState.recordedDays}일",
+                recordedDays = stringResource(R.string.recorded_days_value, uiState.recordedDays),
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
@@ -86,7 +91,7 @@ private fun HistoryHeader() {
             .padding(start = 24.dp, end = 24.dp, top = 28.dp)
     ) {
         Text(
-            text = "히스토리",
+            text = stringResource(R.string.history_label),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.88.sp,
@@ -95,7 +100,7 @@ private fun HistoryHeader() {
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "이번 달 생산성",
+            text = stringResource(R.string.history_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             color = TextPrimary,
@@ -121,7 +126,7 @@ private fun MonthSummaryCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SummaryStatItem(
-            label = "평균 효율",
+            label = stringResource(R.string.label_avg_efficiency),
             value = avgEfficiency,
             valueColor = WorkGreen,
             modifier = Modifier.weight(1f)
@@ -133,7 +138,7 @@ private fun MonthSummaryCard(
                 .background(Color.White.copy(alpha = 0.06f))
         )
         SummaryStatItem(
-            label = "총 작업",
+            label = stringResource(R.string.label_total_work),
             value = totalWork,
             valueColor = TextPrimary,
             modifier = Modifier.weight(1f)
@@ -145,7 +150,7 @@ private fun MonthSummaryCard(
                 .background(Color.White.copy(alpha = 0.06f))
         )
         SummaryStatItem(
-            label = "기록 일수",
+            label = stringResource(R.string.label_recorded_days),
             value = recordedDays,
             valueColor = TextPrimary,
             modifier = Modifier.weight(1f)
@@ -192,7 +197,7 @@ private fun DailyRecordSection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "일별 기록",
+            text = stringResource(R.string.daily_record_title),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.66.sp,
@@ -235,7 +240,7 @@ private fun DailyRecordCard(record: DailyRecord) {
                     lineHeight = 21.sp
                 )
                 Text(
-                    text = "${record.sessionCount}개 세션",
+                    text = stringResource(R.string.session_count, record.sessionCount),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,
                     color = TextTertiary,
@@ -278,7 +283,7 @@ private fun DailyRecordCard(record: DailyRecord) {
         ) {
             Column {
                 Text(
-                    text = "작업",
+                    text = stringResource(R.string.label_work),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Normal,
                     color = WorkGreen,
@@ -295,7 +300,7 @@ private fun DailyRecordCard(record: DailyRecord) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "휴식",
+                    text = stringResource(R.string.label_rest),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Normal,
                     color = RestOrange,

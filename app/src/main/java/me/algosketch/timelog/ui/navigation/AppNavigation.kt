@@ -28,9 +28,11 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import me.algosketch.timelog.R
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -93,9 +95,9 @@ internal fun BottomNavBar(
 ) {
     val topBorderColor = Color.White.copy(alpha = 0.08f)
     val tabs: List<Triple<ImageVector, String, () -> Unit>> = listOf(
-        Triple(Icons.Default.Timer, "타이머", onTimerClick),
-        Triple(Icons.Default.BarChart, "히스토리", onHistoryClick),
-        Triple(Icons.Default.Settings, "설정", onSettingsClick)
+        Triple(Icons.Default.Timer, stringResource(R.string.nav_timer), onTimerClick),
+        Triple(Icons.Default.BarChart, stringResource(R.string.nav_history), onHistoryClick),
+        Triple(Icons.Default.Settings, stringResource(R.string.nav_settings), onSettingsClick)
     )
 
     Row(

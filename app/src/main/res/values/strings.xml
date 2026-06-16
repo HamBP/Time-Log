@@ -1,3 +1,62 @@
 <resources>
     <string name="app_name">Time Log</string>
+
+    <!-- App header -->
+    <string name="app_header_label">타임 로그</string>
+
+    <!-- StopWatch -->
+    <string name="status_waiting">대기 중</string>
+    <string name="status_current_session">현재 세션</string>
+    <string name="hint_tap_to_start">버튼을 눌러 시작하세요</string>
+    <string name="label_focus_record">집중 시간 기록</string>
+    <string name="label_rest_record">휴식 시간 기록</string>
+    <string name="btn_stop">정지</string>
+    <string name="btn_stop_subtitle">타이머 중지</string>
+    <string name="today_summary_title">오늘 요약</string>
+    <string name="label_work">작업</string>
+    <string name="label_efficiency">효율</string>
+    <string name="label_rest">휴식</string>
+    <string name="session_log_title">세션 기록</string>
+
+    <!-- Settings -->
+    <string name="settings_label">설정</string>
+    <string name="settings_title">타임 로그 관리</string>
+    <string name="log_type_section_title">타임 로그 타입</string>
+    <string name="efficiency_included">효율성 포함</string>
+    <string name="efficiency_excluded">효율성 미포함</string>
+    <string name="btn_edit">수정</string>
+    <string name="efficiency_check_on">✓  효율성 체크</string>
+    <string name="efficiency_check_off">○  효율성 체크</string>
+    <string name="btn_add_type">+  새 타입 추가</string>
+    <string name="new_type_form_title">새 타임 로그 타입</string>
+    <string name="field_name">이름</string>
+    <string name="field_name_hint">예: 공부 중</string>
+    <string name="field_color">색상</string>
+    <string name="field_icon">아이콘</string>
+    <string name="btn_add">추가</string>
+    <string name="btn_cancel">취소</string>
+
+    <!-- History -->
+    <string name="history_label">히스토리</string>
+    <string name="history_title">이번 달 생산성</string>
+    <string name="label_avg_efficiency">평균 효율</string>
+    <string name="label_total_work">총 작업</string>
+    <string name="label_recorded_days">기록 일수</string>
+    <string name="daily_record_title">일별 기록</string>
+    <string name="session_count">%d개 세션</string>
+    <string name="recorded_days_value">%d일</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">타이머</string>
+    <string name="nav_history">히스토리</string>
+    <string name="nav_settings">설정</string>
+
+    <!-- Duration formats -->
+    <string name="duration_hours_only">%d시간</string>
+    <string name="duration_hours_and_minutes">%1$d시간 %2$d분</string>
+    <string name="duration_minutes_only">%d분</string>
+
+    <!-- Date/time format patterns (used in ViewModels via context.getString) -->
+    <string name="time_format_pattern">a h:mm</string>
+    <string name="date_format_pattern">M월 d일 (EEE)</string>
 </resources>
