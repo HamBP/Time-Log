@@ -21,6 +21,7 @@ data class LogType(
     val icon: String,
     val color: Color,
     val includeEfficiency: Boolean,
+    val id: Int = 0,
 )
 
 data class SettingsUiState(

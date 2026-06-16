@@ -46,14 +46,14 @@ import me.algosketch.timelog.ui.theme.TextPrimary
 import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
+import me.algosketch.timelog.ui.util.toMaterialIcon
 
 @Composable
 fun StopWatchScreen(viewModel: StopWatchViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     StopWatchContent(
         uiState = uiState,
-        onWorkClick = viewModel::onWorkClick,
-        onRestClick = viewModel::onRestClick,
+        onTypeClick = viewModel::onTypeClick,
         onStopClick = viewModel::onStopClick,
     )
 }
@@ -61,8 +61,7 @@ fun StopWatchScreen(viewModel: StopWatchViewModel = viewModel()) {
 @Composable
 private fun StopWatchContent(
     uiState: StopWatchUiState,
-    onWorkClick: () -> Unit,
-    onRestClick: () -> Unit,
+    onTypeClick: (Int) -> Unit,
     onStopClick: () -> Unit,
 ) {
     LazyColumn(
@@ -76,18 +75,15 @@ private fun StopWatchContent(
         }
         item {
             TimerDisplay(
-                timerState = uiState.timerState,
+                activeType = uiState.logTypes.firstOrNull { it.isActive },
                 elapsedTime = uiState.elapsedTime,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
         item {
             ActionButtonList(
-                timerState = uiState.timerState,
-                workAccumulatedTime = uiState.workAccumulatedTime,
-                restAccumulatedTime = uiState.restAccumulatedTime,
-                onWorkClick = onWorkClick,
-                onRestClick = onRestClick,
+                logTypes = uiState.logTypes,
+                onTypeClick = onTypeClick,
                 onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
             )
@@ -152,35 +148,16 @@ private fun AppHeader(currentTime: String, currentDate: String) {
 
 @Composable
 private fun TimerDisplay(
-    timerState: TimerState,
+    activeType: LogTypeUiItem?,
     elapsedTime: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val accentColor = when (timerState) {
-        TimerState.WORK -> WorkGreen
-        TimerState.REST -> RestOrange
-        TimerState.IDLE -> TextTertiary
-    }
-    val bgColor = when (timerState) {
-        TimerState.WORK -> WorkGreen.copy(alpha = 0.08f)
-        TimerState.REST -> RestOrange.copy(alpha = 0.08f)
-        TimerState.IDLE -> TextTertiary.copy(alpha = 0.06f)
-    }
-    val borderColor = when (timerState) {
-        TimerState.WORK -> WorkGreen.copy(alpha = 0.25f)
-        TimerState.REST -> RestOrange.copy(alpha = 0.25f)
-        TimerState.IDLE -> TextTertiary.copy(alpha = 0.15f)
-    }
-    val statusLabel = when (timerState) {
-        TimerState.WORK -> "집중 모드"
-        TimerState.REST -> "휴식 모드"
-        TimerState.IDLE -> "대기 중"
-    }
-    val hintText = when (timerState) {
-        TimerState.IDLE -> "버튼을 눌러 시작하세요"
-        else -> "현재 세션"
-    }
-    val dotAlpha = if (timerState != TimerState.IDLE) 0.35f else 1f
+    val accentColor = activeType?.color ?: TextTertiary
+    val bgColor = if (activeType != null) accentColor.copy(alpha = 0.08f) else TextTertiary.copy(alpha = 0.06f)
+    val borderColor = if (activeType != null) accentColor.copy(alpha = 0.25f) else TextTertiary.copy(alpha = 0.15f)
+    val statusLabel = activeType?.name ?: "대기 중"
+    val hintText = if (activeType != null) "현재 세션" else "버튼을 눌러 시작하세요"
+    val dotAlpha = if (activeType != null) 0.35f else 1f
 
     Column(
         modifier = modifier
@@ -240,36 +217,26 @@ private fun TimerDisplay(
 
 @Composable
 private fun ActionButtonList(
-    timerState: TimerState,
-    workAccumulatedTime: String,
-    restAccumulatedTime: String,
-    onWorkClick: () -> Unit,
-    onRestClick: () -> Unit,
+    logTypes: List<LogTypeUiItem>,
+    onTypeClick: (Int) -> Unit,
     onStopClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        TimerActionButton(
-            icon = Icons.Default.PlayArrow,
-            title = "일하는 중",
-            subtitle = "집중 시간 기록",
-            time = workAccumulatedTime,
-            isActive = timerState == TimerState.WORK,
-            activeColor = WorkGreen,
-            onClick = onWorkClick
-        )
-        TimerActionButton(
-            icon = Icons.Default.FreeBreakfast,
-            title = "쉬는 중",
-            subtitle = "휴식 시간 기록",
-            time = restAccumulatedTime,
-            isActive = timerState == TimerState.REST,
-            activeColor = RestOrange,
-            onClick = onRestClick
-        )
+        logTypes.forEach { logType ->
+            TimerActionButton(
+                icon = logType.icon.toMaterialIcon(),
+                title = logType.name,
+                subtitle = if (logType.includeEfficiency) "집중 시간 기록" else "휴식 시간 기록",
+                time = logType.accumulatedTime,
+                isActive = logType.isActive,
+                activeColor = logType.color,
+                onClick = { onTypeClick(logType.id) }
+            )
+        }
         StopActionButton(onClick = onStopClick)
     }
 }
@@ -282,7 +249,7 @@ private fun TimerActionButton(
     time: String,
     isActive: Boolean,
     activeColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val bgColor = if (isActive) activeColor.copy(alpha = 0.10f) else Surface
     val borderColor = if (isActive) activeColor.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.06f)
@@ -390,7 +357,7 @@ private fun StopActionButton(onClick: () -> Unit) {
 @Composable
 private fun TodaySummaryCard(
     summary: TodaySummary,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -434,59 +401,19 @@ private fun TodaySummaryCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = "작업",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = WorkGreen,
-                    lineHeight = 16.5.sp
-                )
+                Text(text = "작업", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = WorkGreen, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = summary.workTime,
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = TextPrimary,
-                    lineHeight = 22.5.sp
-                )
+                Text(text = summary.workTime, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextPrimary, lineHeight = 22.5.sp)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "효율",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = TextTertiary,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 16.5.sp
-                )
+                Text(text = "효율", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = TextTertiary, textAlign = TextAlign.Center, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = summary.efficiency,
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = TextSecondary,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 22.5.sp
-                )
+                Text(text = summary.efficiency, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextSecondary, textAlign = TextAlign.Center, lineHeight = 22.5.sp)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "휴식",
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Normal,
-                    color = RestOrange,
-                    textAlign = TextAlign.End,
-                    lineHeight = 16.5.sp
-                )
+                Text(text = "휴식", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = RestOrange, textAlign = TextAlign.End, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = summary.restTime,
-                    fontSize = 15.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = TextPrimary,
-                    textAlign = TextAlign.End,
-                    lineHeight = 22.5.sp
-                )
+                Text(text = summary.restTime, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextPrimary, textAlign = TextAlign.End, lineHeight = 22.5.sp)
             }
         }
     }
@@ -495,7 +422,7 @@ private fun TodaySummaryCard(
 @Composable
 private fun SessionLogSection(
     sessions: List<SessionEntry>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -508,27 +435,13 @@ private fun SessionLogSection(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            sessions.forEach { session ->
-                SessionItem(session = session)
-            }
+            sessions.forEach { session -> SessionItem(session = session) }
         }
     }
 }
 
 @Composable
 private fun SessionItem(session: SessionEntry) {
-    val dotColor = when (session.type) {
-        TimerState.WORK -> WorkGreen
-        TimerState.REST -> RestOrange
-        TimerState.IDLE -> TextTertiary
-    }
-    val durationColor = dotColor
-    val typeName = when (session.type) {
-        TimerState.WORK -> "일하는 중"
-        TimerState.REST -> "쉬는 중"
-        TimerState.IDLE -> "대기 중"
-    }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -543,10 +456,10 @@ private fun SessionItem(session: SessionEntry) {
             modifier = Modifier
                 .size(6.dp)
                 .clip(RoundedCornerShape(3.dp))
-                .background(dotColor)
+                .background(session.color)
         )
         Text(
-            text = typeName,
+            text = session.typeName,
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
             color = TextSecondary,
@@ -566,19 +479,25 @@ private fun SessionItem(session: SessionEntry) {
             fontSize = 12.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Normal,
-            color = durationColor,
+            color = session.color,
             lineHeight = 18.sp
         )
     }
 }
 
-
 @Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Inactive")
 @Composable
 private fun PreviewInactive() {
     StopWatchContent(
-        uiState = StopWatchUiState(currentTime = "오전 03:22", currentDate = "6월 7일 (일)"),
-        onWorkClick = {}, onRestClick = {}, onStopClick = {}
+        uiState = StopWatchUiState(
+            currentTime = "오전 03:22",
+            currentDate = "6월 7일 (일)",
+            logTypes = listOf(
+                LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:00", false, true),
+                LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
+            )
+        ),
+        onTypeClick = {}, onStopClick = {}
     )
 }
 
@@ -589,11 +508,14 @@ private fun PreviewActiveWork() {
         uiState = StopWatchUiState(
             currentTime = "오전 12:17",
             currentDate = "6월 11일 (목)",
-            timerState = TimerState.WORK,
+            activeTypeId = 1,
             elapsedTime = "00:02",
-            workAccumulatedTime = "00:02"
+            logTypes = listOf(
+                LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:02", true, true),
+                LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
+            )
         ),
-        onWorkClick = {}, onRestClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}
     )
 }
 
@@ -604,22 +526,18 @@ private fun PreviewLogged() {
         uiState = StopWatchUiState(
             currentTime = "오전 03:23",
             currentDate = "6월 7일 (일)",
-            timerState = TimerState.IDLE,
-            workAccumulatedTime = "00:03",
-            restAccumulatedTime = "00:03",
-            todaySummary = TodaySummary(
-                workTime = "00:03",
-                efficiency = "48%",
-                restTime = "00:03",
-                efficiencyRatio = 0.48f
+            logTypes = listOf(
+                LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:03", false, true),
+                LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:03", false, false),
             ),
+            todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
-                SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:01"),
-                SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:00"),
-                SessionEntry(type = TimerState.REST, time = "오전 03:23", duration = "00:03"),
-                SessionEntry(type = TimerState.WORK, time = "오전 03:23", duration = "00:02"),
+                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
+                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
+                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
+                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
             )
         ),
-        onWorkClick = {}, onRestClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}
     )
 }
