@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">时间日志</string>
+
+    <!-- App header -->
+    <string name="app_header_label">时间日志</string>
+
+    <!-- StopWatch -->
+    <string name="status_waiting">等待中</string>
+    <string name="status_current_session">当前会话</string>
+    <string name="hint_tap_to_start">点击按钮开始</string>
+    <string name="label_focus_record">专注时间记录</string>
+    <string name="label_rest_record">休息时间记录</string>
+    <string name="btn_stop">停止</string>
+    <string name="btn_stop_subtitle">停止计时器</string>
+    <string name="today_summary_title">今日摘要</string>
+    <string name="label_work">工作</string>
+    <string name="label_efficiency">效率</string>
+    <string name="label_rest">休息</string>
+    <string name="session_log_title">会话记录</string>
+
+    <!-- Settings -->
+    <string name="settings_label">设置</string>
+    <string name="settings_title">管理时间日志</string>
+    <string name="log_type_section_title">日志类型</string>
+    <string name="efficiency_included">含效率</string>
+    <string name="efficiency_excluded">不含效率</string>
+    <string name="btn_edit">编辑</string>
+    <string name="efficiency_check_on">✓  效率检查</string>
+    <string name="efficiency_check_off">○  效率检查</string>
+    <string name="btn_add_type">+  添加新类型</string>
+    <string name="new_type_form_title">新日志类型</string>
+    <string name="field_name">名称</string>
+    <string name="field_name_hint">例：学习中</string>
+    <string name="field_color">颜色</string>
+    <string name="field_icon">图标</string>
+    <string name="btn_add">添加</string>
+    <string name="btn_cancel">取消</string>
+
+    <!-- History -->
+    <string name="history_label">历史</string>
+    <string name="history_title">本月生产力</string>
+    <string name="label_avg_efficiency">平均效率</string>
+    <string name="label_total_work">总工作</string>
+    <string name="label_recorded_days">记录天数</string>
+    <string name="daily_record_title">每日记录</string>
+    <string name="session_count">%d个会话</string>
+    <string name="recorded_days_value">%d天</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">计时器</string>
+    <string name="nav_history">历史</string>
+    <string name="nav_settings">设置</string>
+
+    <!-- Duration formats -->
+    <string name="duration_hours_only">%d小时</string>
+    <string name="duration_hours_and_minutes">%1$d小时%2$d分钟</string>
+    <string name="duration_minutes_only">%d分钟</string>
+
+    <!-- Date/time format patterns -->
+    <string name="time_format_pattern">a h:mm</string>
+    <string name="date_format_pattern">M月d日(EEE)</string>
+</resources>
