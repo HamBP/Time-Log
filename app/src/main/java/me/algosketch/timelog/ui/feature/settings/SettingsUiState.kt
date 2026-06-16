@@ -12,8 +12,8 @@ val colorOptions = listOf(
 )
 
 val iconOptions = listOf(
-    "▶", "☕", "📝", "📚", "💡", "🎯",
-    "🏃", "🎨", "💻", "🎵",
+    "edit_note", "menu_book", "lightbulb", "track_changes", "directions_run", "palette",
+    "laptop", "music_note", "bolt", "star",
 )
 
 data class LogType(

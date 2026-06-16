@@ -13,8 +13,8 @@ class SettingsViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(
         SettingsUiState(
             logTypes = listOf(
-                LogType("일하는 중", "▶", Color(0xFF4ADE80), true),
-                LogType("쉬는 중", "☕", Color(0xFFFB923C), false),
+                LogType("일하는 중", "play_arrow", Color(0xFF4ADE80), true),
+                LogType("쉬는 중", "free_breakfast", Color(0xFFFB923C), false),
             )
         )
     )

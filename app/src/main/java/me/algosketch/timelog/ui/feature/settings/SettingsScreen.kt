@@ -19,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,6 +46,7 @@ import me.algosketch.timelog.ui.theme.TextPrimary
 import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
+import me.algosketch.timelog.ui.util.toMaterialIcon
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
@@ -179,7 +181,12 @@ private fun LogTypeCard(
                     .background(logType.color.copy(alpha = 0.08f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = logType.icon, fontSize = 18.sp, lineHeight = 27.sp)
+                Icon(
+                    imageVector = logType.icon.toMaterialIcon(),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = logType.color
+                )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -496,7 +503,12 @@ private fun IconOption(
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = icon, fontSize = 16.sp, lineHeight = 24.sp)
+        Icon(
+            imageVector = icon.toMaterialIcon(),
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = if (isSelected) selectedColor else TextTertiary
+        )
     }
 }
 
@@ -506,8 +518,8 @@ private fun PreviewSettingsScreen() {
     SettingsContent(
         uiState = SettingsUiState(
             logTypes = listOf(
-                LogType("일하는 중", "▶", Color(0xFF4ADE80), true),
-                LogType("쉬는 중", "☕", Color(0xFFFB923C), false),
+                LogType("일하는 중", "play_arrow", Color(0xFF4ADE80), true),
+                LogType("쉬는 중", "free_breakfast", Color(0xFFFB923C), false),
             )
         ),
         onShowAddForm = {}, onNameChange = {}, onColorSelect = {},
