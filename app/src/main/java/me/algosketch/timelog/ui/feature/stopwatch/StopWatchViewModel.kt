@@ -16,7 +16,9 @@ import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.ui.theme.toComposeColor
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class StopWatchViewModel @Inject constructor(
@@ -26,7 +28,6 @@ class StopWatchViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(StopWatchUiState())
     val uiState: StateFlow<StopWatchUiState> = _uiState.asStateFlow()
 
-    private var elapsedSeconds = 0L
     private var sessionStartTime: LocalDateTime? = null
     private var timerJob: Job? = null
     private val accumulatedSeconds = mutableMapOf<Int, Long>()
@@ -36,7 +37,7 @@ class StopWatchViewModel @Inject constructor(
         viewModelScope.launch {
             while (true) {
                 _uiState.update { it.copy(currentTime = formatCurrentTime(), currentDate = formatCurrentDate()) }
-                delay(1000L)
+                delay(1.seconds)
             }
         }
         viewModelScope.launch {
@@ -98,7 +99,6 @@ class StopWatchViewModel @Inject constructor(
     fun onStopClick() {
         val current = _uiState.value.activeTypeId ?: return
         finishSession(current)
-        elapsedSeconds = 0L
         _uiState.update { it.copy(
             activeTypeId = null,
             elapsedTime = formatElapsed(0L),
@@ -108,7 +108,6 @@ class StopWatchViewModel @Inject constructor(
 
     private fun startSession(typeId: Int) {
         timerJob?.cancel()
-        elapsedSeconds = 0L
         sessionStartTime = LocalDateTime.now()
         _uiState.update { it.copy(
             activeTypeId = typeId,
@@ -117,14 +116,13 @@ class StopWatchViewModel @Inject constructor(
         ) }
         timerJob = viewModelScope.launch {
             while (true) {
-                delay(1000L)
-                elapsedSeconds++
-                accumulatedSeconds[typeId] = (accumulatedSeconds[typeId] ?: 0L) + 1L
+                delay(1.seconds)
+                val elapsed = ChronoUnit.SECONDS.between(sessionStartTime, LocalDateTime.now())
                 _uiState.update { state ->
                     state.copy(
-                        elapsedTime = formatElapsed(elapsedSeconds),
-                        logTypes = buildLogTypeUiItems(activeTypeId = typeId),
-                        todaySummary = computeTodaySummary(),
+                        elapsedTime = formatElapsed(elapsed),
+                        logTypes = buildLogTypeUiItems(activeTypeId = typeId, activeElapsed = elapsed),
+                        todaySummary = computeTodaySummary(activeTypeId = typeId, activeElapsed = elapsed),
                     )
                 }
             }
@@ -134,8 +132,10 @@ class StopWatchViewModel @Inject constructor(
     private fun finishSession(typeId: Int) {
         timerJob?.cancel()
         val startTime = sessionStartTime ?: return
-        val endTime = startTime.plusSeconds(elapsedSeconds)
+        val endTime = LocalDateTime.now()
+        val elapsed = ChronoUnit.SECONDS.between(startTime, endTime)
 
+        accumulatedSeconds[typeId] = (accumulatedSeconds[typeId] ?: 0L) + elapsed
         viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
 
         val type = currentTypes.firstOrNull { it.id == typeId }
@@ -143,7 +143,7 @@ class StopWatchViewModel @Inject constructor(
             typeName = type?.name ?: "",
             color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
             time = formatSessionTime(startTime),
-            duration = formatElapsed(elapsedSeconds),
+            duration = formatElapsed(elapsed),
         )
         _uiState.update { state ->
             state.copy(
@@ -157,21 +157,30 @@ class StopWatchViewModel @Inject constructor(
     private fun buildLogTypeUiItems(
         types: List<LogTypeEntity> = currentTypes,
         activeTypeId: Int? = _uiState.value.activeTypeId,
+        activeElapsed: Long = 0L,
     ): List<LogTypeUiItem> = types.map { type ->
+        val base = accumulatedSeconds[type.id] ?: 0L
+        val total = if (type.id == activeTypeId) base + activeElapsed else base
         LogTypeUiItem(
             id = type.id,
             name = type.name,
             icon = type.icon,
             color = type.colorHex.toComposeColor(),
-            accumulatedTime = formatElapsed(accumulatedSeconds[type.id] ?: 0L),
+            accumulatedTime = formatElapsed(total),
             isActive = type.id == activeTypeId,
             includeEfficiency = type.includeEfficiency,
         )
     }
 
-    private fun computeTodaySummary(types: List<LogTypeEntity> = currentTypes): TodaySummary? {
-        val workSecs = types.filter { it.includeEfficiency }.sumOf { accumulatedSeconds[it.id] ?: 0L }
-        val restSecs = types.filter { !it.includeEfficiency }.sumOf { accumulatedSeconds[it.id] ?: 0L }
+    private fun computeTodaySummary(
+        types: List<LogTypeEntity> = currentTypes,
+        activeTypeId: Int? = _uiState.value.activeTypeId,
+        activeElapsed: Long = 0L,
+    ): TodaySummary? {
+        val workSecs = types.filter { it.includeEfficiency }
+            .sumOf { (accumulatedSeconds[it.id] ?: 0L) + if (it.id == activeTypeId) activeElapsed else 0L }
+        val restSecs = types.filter { !it.includeEfficiency }
+            .sumOf { (accumulatedSeconds[it.id] ?: 0L) + if (it.id == activeTypeId) activeElapsed else 0L }
         val total = workSecs + restSecs
         if (total == 0L) return null
         return TodaySummary(
