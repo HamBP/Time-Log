@@ -6,15 +6,9 @@ data class HistoryUiState(
     val monthlyEfficiency: Int =
         if (records.isEmpty()) 0 else records.sumOf { it.efficiency } / records.size
 
-    val totalWorkTime: Int = records.sumOf { parseMinutes(it.workTime) }
+    val totalWorkTime: Int = records.sumOf { (it.workSecs / 60).toInt() }
 
     val recordedDays: Int = records.size
-}
-
-private fun parseMinutes(timeStr: String): Int {
-    val hours = Regex("""(\d+)시간""").find(timeStr)?.groupValues?.get(1)?.toInt() ?: 0
-    val mins = Regex("""(\d+)분""").find(timeStr)?.groupValues?.get(1)?.toInt() ?: 0
-    return hours * 60 + mins
 }
 
 data class DailyRecord(
@@ -23,4 +17,5 @@ data class DailyRecord(
     val efficiency: Int,
     val workTime: String,
     val restTime: String,
+    val workSecs: Long = 0L,
 )
