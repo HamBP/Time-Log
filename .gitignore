@@ -10,3 +10,6 @@ local.properties
 .idea
 .claude
 .kotlin
+keystore.properties
+*.jks
+*.keystore
