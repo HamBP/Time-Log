@@ -25,7 +25,9 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.Composable
+import me.algosketch.timelog.R
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -119,7 +121,7 @@ private fun AppHeader(currentTime: String, currentDate: String) {
     ) {
         Column {
             Text(
-                text = "타임 로그",
+                text = stringResource(R.string.app_header_label),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Normal,
                 letterSpacing = 0.88.sp,
@@ -155,8 +157,8 @@ private fun TimerDisplay(
     val accentColor = activeType?.color ?: TextTertiary
     val bgColor = if (activeType != null) accentColor.copy(alpha = 0.08f) else TextTertiary.copy(alpha = 0.06f)
     val borderColor = if (activeType != null) accentColor.copy(alpha = 0.25f) else TextTertiary.copy(alpha = 0.15f)
-    val statusLabel = activeType?.name ?: "대기 중"
-    val hintText = if (activeType != null) "현재 세션" else "버튼을 눌러 시작하세요"
+    val statusLabel = activeType?.name ?: stringResource(R.string.status_waiting)
+    val hintText = if (activeType != null) stringResource(R.string.status_current_session) else stringResource(R.string.hint_tap_to_start)
     val dotAlpha = if (activeType != null) 0.35f else 1f
 
     Column(
@@ -230,7 +232,7 @@ private fun ActionButtonList(
             TimerActionButton(
                 icon = logType.icon.toMaterialIcon(),
                 title = logType.name,
-                subtitle = if (logType.includeEfficiency) "집중 시간 기록" else "휴식 시간 기록",
+                subtitle = if (logType.includeEfficiency) stringResource(R.string.label_focus_record) else stringResource(R.string.label_rest_record),
                 time = logType.accumulatedTime,
                 isActive = logType.isActive,
                 activeColor = logType.color,
@@ -337,14 +339,14 @@ private fun StopActionButton(onClick: () -> Unit) {
         }
         Column {
             Text(
-                text = "정지",
+                text = stringResource(R.string.btn_stop),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = TextSecondary,
                 lineHeight = 21.sp
             )
             Text(
-                text = "타이머 중지",
+                text = stringResource(R.string.btn_stop_subtitle),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = TextSecondary.copy(alpha = 0.55f),
@@ -368,7 +370,7 @@ private fun TodaySummaryCard(
             .padding(17.dp)
     ) {
         Text(
-            text = "오늘 요약",
+            text = stringResource(R.string.today_summary_title),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,
@@ -401,17 +403,17 @@ private fun TodaySummaryCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(horizontalAlignment = Alignment.Start) {
-                Text(text = "작업", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = WorkGreen, lineHeight = 16.5.sp)
+                Text(text = stringResource(R.string.label_work), fontSize = 11.sp, fontWeight = FontWeight.Normal, color = WorkGreen, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(text = summary.workTime, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextPrimary, lineHeight = 22.5.sp)
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "효율", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = TextTertiary, textAlign = TextAlign.Center, lineHeight = 16.5.sp)
+                Text(text = stringResource(R.string.label_efficiency), fontSize = 11.sp, fontWeight = FontWeight.Normal, color = TextTertiary, textAlign = TextAlign.Center, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(text = summary.efficiency, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextSecondary, textAlign = TextAlign.Center, lineHeight = 22.5.sp)
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(text = "휴식", fontSize = 11.sp, fontWeight = FontWeight.Normal, color = RestOrange, textAlign = TextAlign.End, lineHeight = 16.5.sp)
+                Text(text = stringResource(R.string.label_rest), fontSize = 11.sp, fontWeight = FontWeight.Normal, color = RestOrange, textAlign = TextAlign.End, lineHeight = 16.5.sp)
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(text = summary.restTime, fontSize = 15.sp, fontFamily = FontFamily.Monospace, color = TextPrimary, textAlign = TextAlign.End, lineHeight = 22.5.sp)
             }
@@ -426,7 +428,7 @@ private fun SessionLogSection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "세션 기록",
+            text = stringResource(R.string.session_log_title),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,

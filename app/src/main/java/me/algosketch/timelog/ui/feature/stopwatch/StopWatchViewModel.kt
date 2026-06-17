@@ -1,9 +1,11 @@
 package me.algosketch.timelog.ui.feature.stopwatch
 
+import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,16 +13,20 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.algosketch.timelog.R
 import me.algosketch.timelog.data.LogRepository
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.ui.theme.toComposeColor
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class StopWatchViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val repository: LogRepository
 ) : ViewModel() {
 
@@ -200,32 +206,18 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private fun formatCurrentTime(): String {
-        val now = LocalDateTime.now()
-        val amPm = if (now.hour < 12) "오전" else "오후"
-        val hour12 = when {
-            now.hour == 0 -> 12
-            now.hour > 12 -> now.hour - 12
-            else -> now.hour
-        }
-        return "$amPm ${hour12}:${now.minute.toString().padStart(2, '0')}"
+        val pattern = context.getString(R.string.time_format_pattern)
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
     }
 
     private fun formatCurrentDate(): String {
-        val now = LocalDateTime.now()
-        val dayOfWeek = when (now.dayOfWeek.value) {
-            1 -> "월"; 2 -> "화"; 3 -> "수"; 4 -> "목"; 5 -> "금"; 6 -> "토"; else -> "일"
-        }
-        return "${now.monthValue}월 ${now.dayOfMonth}일 ($dayOfWeek)"
+        val pattern = context.getString(R.string.date_format_pattern)
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
     }
 
     private fun formatSessionTime(time: LocalDateTime): String {
-        val amPm = if (time.hour < 12) "오전" else "오후"
-        val hour12 = when {
-            time.hour == 0 -> 12
-            time.hour > 12 -> time.hour - 12
-            else -> time.hour
-        }
-        return "$amPm ${hour12}:${time.minute.toString().padStart(2, '0')}"
+        val pattern = context.getString(R.string.time_format_pattern)
+        return time.format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
     }
 
     override fun onCleared() {

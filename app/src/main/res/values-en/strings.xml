@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">Time Log</string>
+
+    <!-- App header -->
+    <string name="app_header_label">TIME LOG</string>
+
+    <!-- StopWatch -->
+    <string name="status_waiting">Waiting</string>
+    <string name="status_current_session">Current Session</string>
+    <string name="hint_tap_to_start">Tap a button to start</string>
+    <string name="label_focus_record">Focus time record</string>
+    <string name="label_rest_record">Break time record</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_stop_subtitle">Stop timer</string>
+    <string name="today_summary_title">Today\'s Summary</string>
+    <string name="label_work">Work</string>
+    <string name="label_efficiency">Efficiency</string>
+    <string name="label_rest">Rest</string>
+    <string name="session_log_title">Session Log</string>
+
+    <!-- Settings -->
+    <string name="settings_label">SETTINGS</string>
+    <string name="settings_title">Manage Time Log</string>
+    <string name="log_type_section_title">LOG TYPES</string>
+    <string name="efficiency_included">Includes efficiency</string>
+    <string name="efficiency_excluded">Excludes efficiency</string>
+    <string name="btn_edit">Edit</string>
+    <string name="efficiency_check_on">✓  Efficiency check</string>
+    <string name="efficiency_check_off">○  Efficiency check</string>
+    <string name="btn_add_type">+  Add new type</string>
+    <string name="new_type_form_title">New Log Type</string>
+    <string name="field_name">Name</string>
+    <string name="field_name_hint">e.g. Studying</string>
+    <string name="field_color">Color</string>
+    <string name="field_icon">Icon</string>
+    <string name="btn_add">Add</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- History -->
+    <string name="history_label">HISTORY</string>
+    <string name="history_title">This Month\'s Productivity</string>
+    <string name="label_avg_efficiency">Avg Efficiency</string>
+    <string name="label_total_work">Total Work</string>
+    <string name="label_recorded_days">Recorded Days</string>
+    <string name="daily_record_title">DAILY RECORDS</string>
+    <string name="session_count">%d sessions</string>
+    <string name="recorded_days_value">%d days</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">Timer</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Duration formats -->
+    <string name="duration_hours_only">%dh</string>
+    <string name="duration_hours_and_minutes">%1$dh %2$dm</string>
+    <string name="duration_minutes_only">%dm</string>
+
+    <!-- Date/time format patterns -->
+    <string name="time_format_pattern">h:mm a</string>
+    <string name="date_format_pattern">MMM d (EEE)</string>
+</resources>

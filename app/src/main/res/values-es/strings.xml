@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">Time Log</string>
+
+    <!-- App header -->
+    <string name="app_header_label">TIME LOG</string>
+
+    <!-- StopWatch -->
+    <string name="status_waiting">En espera</string>
+    <string name="status_current_session">Sesión actual</string>
+    <string name="hint_tap_to_start">Toca un botón para iniciar</string>
+    <string name="label_focus_record">Registro de tiempo enfocado</string>
+    <string name="label_rest_record">Registro de tiempo de descanso</string>
+    <string name="btn_stop">Detener</string>
+    <string name="btn_stop_subtitle">Detener temporizador</string>
+    <string name="today_summary_title">Resumen de hoy</string>
+    <string name="label_work">Trabajo</string>
+    <string name="label_efficiency">Eficiencia</string>
+    <string name="label_rest">Descanso</string>
+    <string name="session_log_title">Registro de sesiones</string>
+
+    <!-- Settings -->
+    <string name="settings_label">AJUSTES</string>
+    <string name="settings_title">Gestionar registro</string>
+    <string name="log_type_section_title">TIPOS DE REGISTRO</string>
+    <string name="efficiency_included">Incluye eficiencia</string>
+    <string name="efficiency_excluded">Excluye eficiencia</string>
+    <string name="btn_edit">Editar</string>
+    <string name="efficiency_check_on">✓  Revisión de eficiencia</string>
+    <string name="efficiency_check_off">○  Revisión de eficiencia</string>
+    <string name="btn_add_type">+  Agregar tipo</string>
+    <string name="new_type_form_title">Nuevo tipo de registro</string>
+    <string name="field_name">Nombre</string>
+    <string name="field_name_hint">Ej: Estudiando</string>
+    <string name="field_color">Color</string>
+    <string name="field_icon">Ícono</string>
+    <string name="btn_add">Agregar</string>
+    <string name="btn_cancel">Cancelar</string>
+
+    <!-- History -->
+    <string name="history_label">HISTORIAL</string>
+    <string name="history_title">Productividad del mes</string>
+    <string name="label_avg_efficiency">Eficiencia media</string>
+    <string name="label_total_work">Trabajo total</string>
+    <string name="label_recorded_days">Días registrados</string>
+    <string name="daily_record_title">REGISTROS DIARIOS</string>
+    <string name="session_count">%d sesiones</string>
+    <string name="recorded_days_value">%d días</string>
+
+    <!-- Navigation -->
+    <string name="nav_timer">Temporizador</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Duration formats -->
+    <string name="duration_hours_only">%dh</string>
+    <string name="duration_hours_and_minutes">%1$dh %2$dm</string>
+    <string name="duration_minutes_only">%dm</string>
+
+    <!-- Date/time format patterns -->
+    <string name="time_format_pattern">H:mm</string>
+    <string name="date_format_pattern">d MMM (EEE)</string>
+</resources>

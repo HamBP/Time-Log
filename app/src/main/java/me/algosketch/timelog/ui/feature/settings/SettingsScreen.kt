@@ -34,8 +34,10 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import me.algosketch.timelog.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -84,7 +86,7 @@ private fun SettingsContent(
         SettingsHeader()
 
         Text(
-            text = "타임 로그 타입",
+            text = stringResource(R.string.log_type_section_title),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.66.sp,
@@ -135,7 +137,7 @@ private fun SettingsHeader() {
             .padding(start = 24.dp, end = 24.dp, top = 28.dp)
     ) {
         Text(
-            text = "설정",
+            text = stringResource(R.string.settings_label),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             letterSpacing = 0.88.sp,
@@ -144,7 +146,7 @@ private fun SettingsHeader() {
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "타임 로그 관리",
+            text = stringResource(R.string.settings_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,
             color = TextPrimary,
@@ -159,7 +161,7 @@ private fun LogTypeCard(
     onEditClick: () -> Unit,
     onEfficiencyToggle: () -> Unit,
 ) {
-    val subtitle = if (logType.includeEfficiency) "효율성 포함" else "효율성 미포함"
+    val subtitle = if (logType.includeEfficiency) stringResource(R.string.efficiency_included) else stringResource(R.string.efficiency_excluded)
 
     Column(
         modifier = Modifier
@@ -215,7 +217,7 @@ private fun LogTypeCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "수정",
+                    text = stringResource(R.string.btn_edit),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = TextSecondary,
@@ -229,7 +231,7 @@ private fun LogTypeCard(
         val effBgColor = if (logType.includeEfficiency) logType.color.copy(alpha = 0.05f) else Color.White.copy(alpha = 0.02f)
         val effBorderColor = if (logType.includeEfficiency) logType.color.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.06f)
         val effTextColor = if (logType.includeEfficiency) logType.color else TextTertiary
-        val effLabel = if (logType.includeEfficiency) "✓  효율성 체크" else "○  효율성 체크"
+        val effLabel = if (logType.includeEfficiency) stringResource(R.string.efficiency_check_on) else stringResource(R.string.efficiency_check_off)
 
         Row(
             modifier = Modifier
@@ -280,7 +282,7 @@ private fun AddTypeButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "+  새 타입 추가",
+            text = stringResource(R.string.btn_add_type),
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
             color = TextSecondary,
@@ -312,7 +314,7 @@ private fun NewTypeFormCard(
             .padding(17.dp)
     ) {
         Text(
-            text = "새 타임 로그 타입",
+            text = stringResource(R.string.new_type_form_title),
             fontSize = 12.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,
@@ -322,7 +324,7 @@ private fun NewTypeFormCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "이름",
+            text = stringResource(R.string.field_name),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,
@@ -345,7 +347,7 @@ private fun NewTypeFormCard(
                 Box {
                     if (name.isEmpty()) {
                         Text(
-                            text = "예: 공부 중",
+                            text = stringResource(R.string.field_name_hint),
                             fontSize = 14.sp,
                             color = TextPrimary.copy(alpha = 0.5f),
                         )
@@ -358,7 +360,7 @@ private fun NewTypeFormCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "색상",
+            text = stringResource(R.string.field_color),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,
@@ -378,7 +380,7 @@ private fun NewTypeFormCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "아이콘",
+            text = stringResource(R.string.field_icon),
             fontSize = 11.sp,
             fontWeight = FontWeight.Normal,
             color = TextTertiary,
@@ -426,7 +428,7 @@ private fun NewTypeFormCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "추가",
+                    text = stringResource(R.string.btn_add),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = WorkGreen,
@@ -444,7 +446,7 @@ private fun NewTypeFormCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "취소",
+                    text = stringResource(R.string.btn_cancel),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     color = TextTertiary,
