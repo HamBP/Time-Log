@@ -6,6 +6,7 @@ import me.algosketch.timelog.data.local.dao.LogTypeDao
 import me.algosketch.timelog.data.local.entity.DailyAggregate
 import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
+import me.algosketch.timelog.data.local.entity.SessionDetail
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -52,4 +53,7 @@ class LogRepository @Inject constructor(
     }
 
     fun getDailyAggregatesFlow(): Flow<List<DailyAggregate>> = logSessionDao.getDailyAggregates()
+
+    fun getSessionsForDateFlow(date: String): Flow<List<SessionDetail>> =
+        logSessionDao.getSessionsForDate(date)
 }

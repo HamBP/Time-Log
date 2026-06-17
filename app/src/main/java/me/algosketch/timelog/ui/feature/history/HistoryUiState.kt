@@ -18,4 +18,5 @@ data class DailyRecord(
     val workTime: String,
     val restTime: String,
     val workSecs: Long = 0L,
+    val rawDate: String = "", // 상세 페이지 조회/재포맷용 ISO 날짜 (yyyy-MM-dd)
 )

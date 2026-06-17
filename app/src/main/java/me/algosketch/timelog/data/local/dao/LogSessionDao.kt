@@ -8,6 +8,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import me.algosketch.timelog.data.local.entity.DailyAggregate
 import me.algosketch.timelog.data.local.entity.LogSessionEntity
+import me.algosketch.timelog.data.local.entity.SessionDetail
 
 @Dao
 interface LogSessionDao {
@@ -30,6 +31,21 @@ interface LogSessionDao {
         ORDER BY date DESC
     """)
     fun getDailyAggregates(): Flow<List<DailyAggregate>>
+
+    @Query("""
+        SELECT
+          t.name AS typeName,
+          t.colorHex AS colorHex,
+          t.icon AS icon,
+          t.includeEfficiency AS includeEfficiency,
+          s.startedAt AS startedAt,
+          s.endedAt AS endedAt
+        FROM log_sessions s
+        JOIN log_types t ON s.typeId = t.id
+        WHERE date(s.startedAt, 'unixepoch', 'localtime') = :date
+        ORDER BY s.startedAt ASC
+    """)
+    fun getSessionsForDate(date: String): Flow<List<SessionDetail>>
 
     @Insert
     suspend fun insert(logSession: LogSessionEntity)

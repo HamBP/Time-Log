@@ -46,6 +46,12 @@
     <string name="session_count">%d개 세션</string>
     <string name="recorded_days_value">%d일</string>
 
+    <!-- History detail -->
+    <string name="history_detail_label">일별 상세</string>
+    <string name="session_time_range">%1$s - %2$s</string>
+    <string name="history_detail_empty">기록된 세션이 없습니다</string>
+    <string name="cd_back">뒤로 가기</string>
+
     <!-- Navigation -->
     <string name="nav_timer">타이머</string>
     <string name="nav_history">히스토리</string>

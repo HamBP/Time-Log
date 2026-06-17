@@ -46,6 +46,12 @@
     <string name="session_count">%d sessions</string>
     <string name="recorded_days_value">%d days</string>
 
+    <!-- History detail -->
+    <string name="history_detail_label">DAILY DETAIL</string>
+    <string name="session_time_range">%1$s - %2$s</string>
+    <string name="history_detail_empty">No sessions recorded</string>
+    <string name="cd_back">Back</string>
+
     <!-- Navigation -->
     <string name="nav_timer">Timer</string>
     <string name="nav_history">History</string>
