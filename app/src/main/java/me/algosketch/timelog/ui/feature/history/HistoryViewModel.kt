@@ -48,6 +48,7 @@ class HistoryViewModel @Inject constructor(
             workTime = formatDuration(workSecs),
             restTime = formatDuration(restSecs),
             workSecs = workSecs,
+            rawDate = this.date,
         )
     }
 

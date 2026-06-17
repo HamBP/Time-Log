@@ -2,6 +2,7 @@ package me.algosketch.timelog.ui.feature.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,13 +43,19 @@ import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
 
 @Composable
-fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
+fun HistoryScreen(
+    viewModel: HistoryViewModel = viewModel(),
+    onRecordClick: (String) -> Unit = {},
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    HistoryContent(uiState = uiState)
+    HistoryContent(uiState = uiState, onRecordClick = onRecordClick)
 }
 
 @Composable
-private fun HistoryContent(uiState: HistoryUiState) {
+private fun HistoryContent(
+    uiState: HistoryUiState,
+    onRecordClick: (String) -> Unit = {},
+) {
     val totalWorkHours = uiState.totalWorkTime / 60
     val totalWorkMins = uiState.totalWorkTime % 60
     val totalWorkDisplay = if (totalWorkMins == 0)
@@ -76,6 +83,7 @@ private fun HistoryContent(uiState: HistoryUiState) {
         item {
             DailyRecordSection(
                 records = uiState.records,
+                onRecordClick = onRecordClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
@@ -193,6 +201,7 @@ private fun SummaryStatItem(
 @Composable
 private fun DailyRecordSection(
     records: List<DailyRecord>,
+    onRecordClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -207,14 +216,20 @@ private fun DailyRecordSection(
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             records.forEach { record ->
-                DailyRecordCard(record = record)
+                DailyRecordCard(
+                    record = record,
+                    onClick = { onRecordClick(record.rawDate) }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DailyRecordCard(record: DailyRecord) {
+private fun DailyRecordCard(
+    record: DailyRecord,
+    onClick: () -> Unit,
+) {
     val efficiencyColor = if (record.efficiency >= 80) WorkGreen else RestOrange
     val efficiencyRatio = record.efficiency / 100f
 
@@ -224,6 +239,7 @@ private fun DailyRecordCard(record: DailyRecord) {
             .clip(RoundedCornerShape(12.dp))
             .background(Surface)
             .border(1.dp, Color.White.copy(alpha = 0.06f), RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
             .padding(17.dp)
     ) {
         Row(

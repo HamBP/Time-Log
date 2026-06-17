@@ -39,6 +39,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
 import me.algosketch.timelog.ui.feature.history.HistoryScreen
+import me.algosketch.timelog.ui.feature.historydetail.HistoryDetailScreen
 import me.algosketch.timelog.ui.feature.settings.SettingsScreen
 import me.algosketch.timelog.ui.feature.stopwatch.StopWatchScreen
 import me.algosketch.timelog.ui.theme.Background
@@ -48,6 +49,7 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 @Serializable data object TimerDestination : NavKey
 @Serializable data object HistoryDestination : NavKey
 @Serializable data object SettingsDestination : NavKey
+@Serializable data class HistoryDetailDestination(val date: String) : NavKey
 
 @Composable
 fun AppNavigation() {
@@ -55,7 +57,7 @@ fun AppNavigation() {
     val currentDest = backStack.lastOrNull()
 
     val activeTab = when (currentDest) {
-        is HistoryDestination -> 1
+        is HistoryDestination, is HistoryDetailDestination -> 1
         is SettingsDestination -> 2
         else -> 0
     }
@@ -72,8 +74,18 @@ fun AppNavigation() {
             onBack = { if (backStack.size > 1) backStack.removeLastOrNull() },
             entryProvider = entryProvider {
                 entry<TimerDestination> { StopWatchScreen() }
-                entry<HistoryDestination> { HistoryScreen() }
+                entry<HistoryDestination> {
+                    HistoryScreen(
+                        onRecordClick = { date -> backStack.add(HistoryDetailDestination(date)) }
+                    )
+                }
                 entry<SettingsDestination> { SettingsScreen() }
+                entry<HistoryDetailDestination> { key ->
+                    HistoryDetailScreen(
+                        date = key.date,
+                        onBack = { backStack.removeLastOrNull() }
+                    )
+                }
             }
         )
 
