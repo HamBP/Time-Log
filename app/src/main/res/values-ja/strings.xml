@@ -20,21 +20,24 @@
 
     <!-- Settings -->
     <string name="settings_label">設定</string>
-    <string name="settings_title">タイムログ管理</string>
     <string name="log_type_section_title">ログタイプ</string>
     <string name="efficiency_included">効率を含む</string>
     <string name="efficiency_excluded">効率を除く</string>
     <string name="btn_edit">編集</string>
-    <string name="efficiency_check_on">✓  効率チェック</string>
-    <string name="efficiency_check_off">○  効率チェック</string>
     <string name="btn_add_type">+  新しいタイプ追加</string>
-    <string name="new_type_form_title">新しいログタイプ</string>
+
+    <!-- Log type add/edit form -->
+    <string name="log_type_add_title">タイプ追加</string>
+    <string name="log_type_edit_title">タイプ編集</string>
     <string name="field_name">名前</string>
     <string name="field_name_hint">例：勉強中</string>
     <string name="field_color">色</string>
     <string name="field_icon">アイコン</string>
+    <string name="efficiency_check_title">効率チェック</string>
+    <string name="segment_include">含む</string>
+    <string name="segment_exclude">除く</string>
     <string name="btn_add">追加</string>
-    <string name="btn_cancel">キャンセル</string>
+    <string name="btn_save">保存</string>
 
     <!-- History -->
     <string name="history_label">履歴</string>

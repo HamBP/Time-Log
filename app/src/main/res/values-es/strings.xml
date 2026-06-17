@@ -20,21 +20,24 @@
 
     <!-- Settings -->
     <string name="settings_label">AJUSTES</string>
-    <string name="settings_title">Gestionar registro</string>
     <string name="log_type_section_title">TIPOS DE REGISTRO</string>
     <string name="efficiency_included">Incluye eficiencia</string>
     <string name="efficiency_excluded">Excluye eficiencia</string>
     <string name="btn_edit">Editar</string>
-    <string name="efficiency_check_on">✓  Revisión de eficiencia</string>
-    <string name="efficiency_check_off">○  Revisión de eficiencia</string>
     <string name="btn_add_type">+  Agregar tipo</string>
-    <string name="new_type_form_title">Nuevo tipo de registro</string>
+
+    <!-- Log type add/edit form -->
+    <string name="log_type_add_title">Agregar tipo</string>
+    <string name="log_type_edit_title">Editar tipo</string>
     <string name="field_name">Nombre</string>
     <string name="field_name_hint">Ej: Estudiando</string>
     <string name="field_color">Color</string>
     <string name="field_icon">Ícono</string>
+    <string name="efficiency_check_title">Revisión de eficiencia</string>
+    <string name="segment_include">Incluir</string>
+    <string name="segment_exclude">Excluir</string>
     <string name="btn_add">Agregar</string>
-    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_save">Guardar</string>
 
     <!-- History -->
     <string name="history_label">HISTORIAL</string>

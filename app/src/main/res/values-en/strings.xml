@@ -20,21 +20,24 @@
 
     <!-- Settings -->
     <string name="settings_label">SETTINGS</string>
-    <string name="settings_title">Manage Time Log</string>
     <string name="log_type_section_title">LOG TYPES</string>
     <string name="efficiency_included">Includes efficiency</string>
     <string name="efficiency_excluded">Excludes efficiency</string>
     <string name="btn_edit">Edit</string>
-    <string name="efficiency_check_on">✓  Efficiency check</string>
-    <string name="efficiency_check_off">○  Efficiency check</string>
     <string name="btn_add_type">+  Add new type</string>
-    <string name="new_type_form_title">New Log Type</string>
+
+    <!-- Log type add/edit form -->
+    <string name="log_type_add_title">Add Type</string>
+    <string name="log_type_edit_title">Edit Type</string>
     <string name="field_name">Name</string>
     <string name="field_name_hint">e.g. Studying</string>
     <string name="field_color">Color</string>
     <string name="field_icon">Icon</string>
+    <string name="efficiency_check_title">Efficiency check</string>
+    <string name="segment_include">Include</string>
+    <string name="segment_exclude">Exclude</string>
     <string name="btn_add">Add</string>
-    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save</string>
 
     <!-- History -->
     <string name="history_label">HISTORY</string>

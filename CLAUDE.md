@@ -52,3 +52,4 @@ The app is fully localized. **Korean is the base locale** living in `res/values/
 ## 지시 사항
 
 - 지시 사항에 대한 의도 혹은 누락된 정보로 인해 의문이 있을 경우, 이를 임의 구현하지 않고 질문해도 된다.
+- 대답은 한국어로.
