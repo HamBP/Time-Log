@@ -41,6 +41,26 @@ class LogRepository @Inject constructor(
         logTypeDao.updateEfficiency(id, includeEfficiency)
     }
 
+    suspend fun getLogType(id: Int): LogTypeEntity? = logTypeDao.getById(id)
+
+    suspend fun updateLogType(
+        id: Int,
+        name: String,
+        colorHex: String,
+        icon: String,
+        includeEfficiency: Boolean,
+    ) {
+        val existing = logTypeDao.getById(id) ?: return
+        logTypeDao.update(
+            existing.copy(
+                name = name,
+                colorHex = colorHex,
+                icon = icon,
+                includeEfficiency = includeEfficiency,
+            )
+        )
+    }
+
     suspend fun saveSession(typeId: Int, startedAt: LocalDateTime, endedAt: LocalDateTime) {
         logSessionDao.insert(
             LogSessionEntity(id = 0, typeId = typeId, startedAt = startedAt, endedAt = endedAt)

@@ -40,6 +40,7 @@ import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
 import me.algosketch.timelog.ui.feature.history.HistoryScreen
 import me.algosketch.timelog.ui.feature.historydetail.HistoryDetailScreen
+import me.algosketch.timelog.ui.feature.logtypeform.LogTypeFormScreen
 import me.algosketch.timelog.ui.feature.settings.SettingsScreen
 import me.algosketch.timelog.ui.feature.stopwatch.StopWatchScreen
 import me.algosketch.timelog.ui.theme.Background
@@ -50,6 +51,8 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 @Serializable data object HistoryDestination : NavKey
 @Serializable data object SettingsDestination : NavKey
 @Serializable data class HistoryDetailDestination(val date: String) : NavKey
+@Serializable data object LogTypeAddDestination : NavKey
+@Serializable data class LogTypeEditDestination(val typeId: Int) : NavKey
 
 @Composable
 fun AppNavigation() {
@@ -58,7 +61,7 @@ fun AppNavigation() {
 
     val activeTab = when (currentDest) {
         is HistoryDestination, is HistoryDetailDestination -> 1
-        is SettingsDestination -> 2
+        is SettingsDestination, is LogTypeAddDestination, is LogTypeEditDestination -> 2
         else -> 0
     }
 
@@ -79,10 +82,27 @@ fun AppNavigation() {
                         onRecordClick = { date -> backStack.add(HistoryDetailDestination(date)) }
                     )
                 }
-                entry<SettingsDestination> { SettingsScreen() }
+                entry<SettingsDestination> {
+                    SettingsScreen(
+                        onAddClick = { backStack.add(LogTypeAddDestination) },
+                        onEditClick = { id -> backStack.add(LogTypeEditDestination(id)) }
+                    )
+                }
                 entry<HistoryDetailDestination> { key ->
                     HistoryDetailScreen(
                         date = key.date,
+                        onBack = { backStack.removeLastOrNull() }
+                    )
+                }
+                entry<LogTypeAddDestination> {
+                    LogTypeFormScreen(
+                        typeId = null,
+                        onBack = { backStack.removeLastOrNull() }
+                    )
+                }
+                entry<LogTypeEditDestination> { key ->
+                    LogTypeFormScreen(
+                        typeId = key.typeId,
                         onBack = { backStack.removeLastOrNull() }
                     )
                 }

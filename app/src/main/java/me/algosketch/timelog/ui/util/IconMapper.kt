@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FreeBreakfast
 import androidx.compose.material.icons.filled.Laptop
 import androidx.compose.material.icons.filled.Lightbulb
@@ -29,6 +30,7 @@ fun String.toMaterialIcon(): ImageVector = when (this) {
     "music_note" -> Icons.Default.MusicNote
     "bolt" -> Icons.Default.Bolt
     "star" -> Icons.Default.Star
+    "favorite" -> Icons.Default.Favorite
     "stop" -> Icons.Default.Stop
     else -> Icons.Default.PlayArrow
 }

@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import me.algosketch.timelog.data.LogRepository
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.ui.theme.toComposeColor
-import me.algosketch.timelog.ui.theme.toHex
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,61 +27,6 @@ class SettingsViewModel @Inject constructor(
                     state.copy(logTypes = entities.map { it.toDomain() })
                 }
             }
-        }
-    }
-
-    fun onShowAddForm() {
-        _uiState.update { it.copy(showAddForm = true) }
-    }
-
-    fun onNameChange(name: String) {
-        _uiState.update { it.copy(newTypeName = name) }
-    }
-
-    fun onColorSelect(index: Int) {
-        _uiState.update { it.copy(selectedColorIndex = index) }
-    }
-
-    fun onIconSelect(index: Int) {
-        _uiState.update { it.copy(selectedIconIndex = index) }
-    }
-
-    fun onAddType() {
-        val state = _uiState.value
-        if (state.newTypeName.isBlank()) return
-        viewModelScope.launch {
-            repository.addLogType(
-                name = state.newTypeName,
-                colorHex = colorOptions[state.selectedColorIndex].toHex(),
-                icon = iconOptions[state.selectedIconIndex],
-                includeEfficiency = true,
-            )
-        }
-        _uiState.update {
-            it.copy(
-                showAddForm = false,
-                newTypeName = "",
-                selectedColorIndex = 2,
-                selectedIconIndex = 2,
-            )
-        }
-    }
-
-    fun onCancelAddType() {
-        _uiState.update {
-            it.copy(
-                showAddForm = false,
-                newTypeName = "",
-                selectedColorIndex = 2,
-                selectedIconIndex = 2,
-            )
-        }
-    }
-
-    fun onEfficiencyToggle(index: Int) {
-        val type = _uiState.value.logTypes.getOrNull(index) ?: return
-        viewModelScope.launch {
-            repository.updateLogTypeEfficiency(type.id, !type.includeEfficiency)
         }
     }
 }

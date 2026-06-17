@@ -19,6 +19,9 @@ interface LogTypeDao {
     @Query("SELECT * FROM log_types WHERE isActive = 1 ORDER BY sortOrder ASC")
     fun getAllActiveFlow(): Flow<List<LogTypeEntity>>
 
+    @Query("SELECT * FROM log_types WHERE id = :id")
+    suspend fun getById(id: Int): LogTypeEntity?
+
     @Query("UPDATE log_types SET includeEfficiency = :includeEfficiency WHERE id = :id")
     suspend fun updateEfficiency(id: Int, includeEfficiency: Boolean)
 
