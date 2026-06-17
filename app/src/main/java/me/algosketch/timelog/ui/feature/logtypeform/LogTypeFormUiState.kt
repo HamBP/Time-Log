@@ -12,10 +12,11 @@ val colorOptions = listOf(
     Color(0xFFF87171), // coral
 )
 
-/** 아이콘 옵션 (Figma 아이콘 섹션 순서, 2행 x 6열). */
+/** 아이콘 옵션 (Figma 아이콘 섹션 순서, 6열 기준). */
 val iconOptions = listOf(
     "play_arrow", "edit_note", "menu_book", "lightbulb", "track_changes", "directions_run",
     "palette", "laptop", "music_note", "bolt", "star", "favorite",
+    "free_breakfast",
 )
 
 data class LogTypeFormUiState(

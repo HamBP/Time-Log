@@ -107,6 +107,13 @@ private fun LogTypeFormContent(
                 )
             }
 
+            FormSection(label = stringResource(R.string.efficiency_check_title)) {
+                EfficiencySegment(
+                    includeEfficiency = uiState.includeEfficiency,
+                    onEfficiencyChange = onEfficiencyChange,
+                )
+            }
+
             // 색상 선택은 효율성 "포함"일 때만 노출한다.
             if (uiState.includeEfficiency) {
                 FormSection(label = stringResource(R.string.field_color)) {
@@ -115,13 +122,6 @@ private fun LogTypeFormContent(
                         onColorSelect = onColorSelect,
                     )
                 }
-            }
-
-            FormSection(label = stringResource(R.string.efficiency_check_title)) {
-                EfficiencySegment(
-                    includeEfficiency = uiState.includeEfficiency,
-                    onEfficiencyChange = onEfficiencyChange,
-                )
             }
 
             SaveButton(
@@ -199,14 +199,13 @@ private fun IconGrid(
     onIconSelect: (Int) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        listOf(0, 6).forEach { rowStart ->
+        iconOptions.chunked(6).forEachIndexed { rowIdx, rowIcons ->
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                for (offset in 0 until 6) {
-                    val index = rowStart + offset
+                rowIcons.forEachIndexed { colIdx, icon ->
                     IconCell(
-                        icon = iconOptions[index],
-                        isSelected = index == selectedIconIndex,
-                        onClick = { onIconSelect(index) },
+                        icon = icon,
+                        isSelected = rowIdx * 6 + colIdx == selectedIconIndex,
+                        onClick = { onIconSelect(rowIdx * 6 + colIdx) },
                     )
                 }
             }
