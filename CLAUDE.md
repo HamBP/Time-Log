@@ -48,3 +48,7 @@ The app is fully localized. **Korean is the base locale** living in `res/values/
 - All user-facing text must be a string resource referenced via `stringResource(R.string.…)` in Composables, or `context.getString(R.string.…)` in ViewModels. Do not hardcode display strings.
 - Date/time formatting is locale-driven: format patterns themselves are resources (`date_format_pattern`, `time_format_pattern`) fed to `DateTimeFormatter.ofPattern(pattern, Locale.getDefault())`. Durations use plural-style resources (`duration_hours_and_minutes`, `duration_minutes_only`) with positional args.
 - When adding a string, add it to `values/strings.xml` **and** all four translation files, keeping placeholder args (`%1$d`, etc.) consistent across every locale.
+
+## 지시 사항
+
+- 지시 사항에 대한 의도 혹은 누락된 정보로 인해 의문이 있을 경우, 이를 임의 구현하지 않고 질문해도 된다.
