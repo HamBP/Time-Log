@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.R
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.Surface
@@ -53,7 +53,7 @@ private val cardBorderColor = Color.White.copy(alpha = 0.06f)
 fun SettingsScreen(
     onAddClick: () -> Unit = {},
     onEditClick: (Int) -> Unit = {},
-    viewModel: SettingsViewModel = viewModel(),
+    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsContent(

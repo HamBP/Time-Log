@@ -38,7 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.R
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.RestOrange
@@ -59,7 +59,7 @@ private val cardBorderColor = Color.White.copy(alpha = 0.06f)
 fun HistoryDetailScreen(
     date: String,
     onBack: () -> Unit = {},
-    viewModel: HistoryDetailViewModel = viewModel(),
+    viewModel: HistoryDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(date) { viewModel.load(date) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

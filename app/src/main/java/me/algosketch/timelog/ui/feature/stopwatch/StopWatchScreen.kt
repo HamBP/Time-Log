@@ -40,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.RestOrange
 import me.algosketch.timelog.ui.theme.Surface
@@ -51,7 +51,7 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 import me.algosketch.timelog.ui.util.toMaterialIcon
 
 @Composable
-fun StopWatchScreen(viewModel: StopWatchViewModel = viewModel()) {
+fun StopWatchScreen(viewModel: StopWatchViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     StopWatchContent(
         uiState = uiState,
