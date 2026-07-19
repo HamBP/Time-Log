@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.R
 import me.algosketch.timelog.ui.component.TimeLogAppBar
 import me.algosketch.timelog.ui.theme.Background
@@ -52,7 +52,7 @@ private val cardBorderColor = Color.White.copy(alpha = 0.06f)
 fun LogTypeFormScreen(
     typeId: Int? = null,
     onBack: () -> Unit = {},
-    viewModel: LogTypeFormViewModel = viewModel(),
+    viewModel: LogTypeFormViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(typeId) { viewModel.load(typeId) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

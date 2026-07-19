@@ -33,9 +33,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.algosketch.timelog.R
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.serialization.Serializable
 import me.algosketch.timelog.ui.feature.history.HistoryScreen
@@ -70,13 +74,27 @@ fun AppNavigation() {
         backStack.add(dest)
     }
 
+    // NavDisplay 안에서는 LocalViewModelStoreOwner가 NavEntry 스코프로 덮어씌워지므로,
+    // Activity 스코프 소유자를 미리 잡아둔다. StopWatch 전용으로 쓴다.
+    val activityViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
+
     Column(modifier = Modifier.fillMaxSize().background(Background)) {
         NavDisplay(
             backStack = backStack,
             modifier = Modifier.weight(1f),
             onBack = { if (backStack.size > 1) backStack.removeLastOrNull() },
+            // 각 NavEntry에 전용 ViewModelStore를 부여한다. 없으면 모든 화면이 Activity 스코프
+            // ViewModel 하나를 공유해 화면 간 상태가 섞인다.
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
             entryProvider = entryProvider {
-                entry<TimerDestination> { StopWatchScreen() }
+                // 진행 중인 세션은 정지 시점에만 DB에 저장되므로, 탭 전환으로 엔트리가 pop되어도
+                // 타이머가 살아있도록 Activity 스코프 ViewModel을 유지한다.
+                entry<TimerDestination> {
+                    StopWatchScreen(viewModel = hiltViewModel(activityViewModelStoreOwner))
+                }
                 entry<HistoryDestination> {
                     HistoryScreen(
                         onRecordClick = { date -> backStack.add(HistoryDetailDestination(date)) }

@@ -20,12 +20,9 @@ class LogTypeFormViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var editingId: Int? = null
-    private var loaded = false
 
     /** typeId가 null이면 추가 모드, 값이 있으면 해당 타입을 불러와 수정 모드로 채운다. */
     fun load(typeId: Int?) {
-        if (loaded) return
-        loaded = true
         if (typeId == null) return
         editingId = typeId
         viewModelScope.launch {

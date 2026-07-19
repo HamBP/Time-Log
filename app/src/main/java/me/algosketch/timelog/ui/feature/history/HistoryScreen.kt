@@ -33,7 +33,7 @@ import me.algosketch.timelog.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.RestOrange
 import me.algosketch.timelog.ui.theme.Surface
@@ -44,7 +44,7 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 
 @Composable
 fun HistoryScreen(
-    viewModel: HistoryViewModel = viewModel(),
+    viewModel: HistoryViewModel = hiltViewModel(),
     onRecordClick: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
