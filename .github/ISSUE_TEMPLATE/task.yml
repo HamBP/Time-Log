@@ -1,0 +1,12 @@
+name: Task
+description: 작업 이슈
+title: ""
+labels: []
+assignees:
+  - HamBP
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
