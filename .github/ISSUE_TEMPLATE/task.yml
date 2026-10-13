@@ -1,11 +1,10 @@
 name: Task
 description: 작업 이슈
-labels: []
 assignees:
   - HamBP
 
 body:
   - type: textarea
     id: description
-    validations:
-      required: true
+    attributes:
+      label: Description
