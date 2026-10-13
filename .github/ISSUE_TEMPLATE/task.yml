@@ -1,6 +1,5 @@
 name: Task
 description: 작업 이슈
-title: "[Task] "
 labels: []
 assignees:
   - HamBP
@@ -8,8 +7,5 @@ assignees:
 body:
   - type: textarea
     id: description
-    attributes:
-      label: 작업 내용
-      description: 작업할 내용을 작성해주세요.
     validations:
       required: true
