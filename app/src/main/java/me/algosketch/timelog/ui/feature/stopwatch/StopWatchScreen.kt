@@ -70,17 +70,18 @@ fun StopWatchScreen(viewModel: StopWatchViewModel = hiltViewModel()) {
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { }
+    val startType: (Int) -> Unit = { typeId ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        viewModel.onTypeClick(typeId)
+    }
     StopWatchContent(
         uiState = uiState,
-        onTypeClick = { typeId ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-            viewModel.onTypeClick(typeId)
-        },
+        onTypeClick = startType,
         onStopClick = viewModel::onStopClick,
     )
 }
@@ -103,7 +104,10 @@ private fun StopWatchContent(
         item {
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
+                lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
                 elapsedTime = uiState.elapsedTime,
+                onStartClick = onTypeClick,
+                onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
@@ -111,7 +115,6 @@ private fun StopWatchContent(
             ActionButtonList(
                 logTypes = uiState.logTypes,
                 onTypeClick = onTypeClick,
-                onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
             )
         }
@@ -176,14 +179,16 @@ private fun AppHeader(currentTime: String, currentDate: String) {
 @Composable
 private fun TimerDisplay(
     activeType: LogTypeUiItem?,
+    lastType: LogTypeUiItem?,
     elapsedTime: String,
+    onStartClick: (Int) -> Unit,
+    onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val accentColor = activeType?.color ?: TextTertiary
     val bgColor = if (activeType != null) accentColor.copy(alpha = 0.08f) else TextTertiary.copy(alpha = 0.06f)
     val borderColor = if (activeType != null) accentColor.copy(alpha = 0.25f) else TextTertiary.copy(alpha = 0.15f)
     val statusLabel = activeType?.name ?: stringResource(R.string.status_waiting)
-    val hintText = if (activeType != null) stringResource(R.string.status_current_session) else stringResource(R.string.hint_tap_to_start)
     val dotAlpha = if (activeType != null) 0.35f else 1f
 
     Column(
@@ -229,15 +234,63 @@ private fun TimerDisplay(
             lineHeight = 54.sp
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
+        when {
+            activeType != null -> TimerControlButton(
+                icon = Icons.Default.Stop,
+                label = stringResource(R.string.btn_stop),
+                color = accentColor,
+                onClick = onStopClick,
+            )
+            // 정지 상태에서는 마지막으로 기록한 타입으로 다시 시작한다.
+            lastType != null -> TimerControlButton(
+                icon = Icons.Default.PlayArrow,
+                label = stringResource(R.string.btn_start),
+                color = lastType.color,
+                onClick = { onStartClick(lastType.id) },
+            )
+            else -> Text(
+                text = stringResource(R.string.hint_tap_to_start),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                color = TextTertiary,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimerControlButton(
+    icon: ImageVector,
+    label: String,
+    color: Color,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(color.copy(alpha = 0.12f))
+            .border(1.dp, color.copy(alpha = 0.45f), RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = color
+        )
         Text(
-            text = hintText,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Normal,
-            color = TextTertiary,
-            textAlign = TextAlign.Center,
-            lineHeight = 18.sp
+            text = label,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = color,
+            lineHeight = 21.sp
         )
     }
 }
@@ -246,7 +299,6 @@ private fun TimerDisplay(
 private fun ActionButtonList(
     logTypes: List<LogTypeUiItem>,
     onTypeClick: (Int) -> Unit,
-    onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -264,7 +316,6 @@ private fun ActionButtonList(
                 onClick = { onTypeClick(logType.id) }
             )
         }
-        StopActionButton(onClick = onStopClick)
     }
 }
 
@@ -332,52 +383,6 @@ private fun TimerActionButton(
             color = textColor,
             lineHeight = 19.5.sp
         )
-    }
-}
-
-@Composable
-private fun StopActionButton(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(TextTertiary.copy(alpha = 0.07f))
-            .border(1.dp, TextTertiary.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(horizontal = 17.dp, vertical = 15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(TextTertiary.copy(alpha = 0.09f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Stop,
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = TextSecondary
-            )
-        }
-        Column {
-            Text(
-                text = stringResource(R.string.btn_stop),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                color = TextSecondary,
-                lineHeight = 21.sp
-            )
-            Text(
-                text = stringResource(R.string.btn_stop_subtitle),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Medium,
-                color = TextSecondary.copy(alpha = 0.55f),
-                lineHeight = 16.5.sp
-            )
-        }
     }
 }
 
@@ -521,6 +526,23 @@ private fun PreviewInactive() {
             currentDate = "6월 7일 (일)",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:00", false, true),
+                LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
+            )
+        ),
+        onTypeClick = {}, onStopClick = {}
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0F0F11, name = "Stopped - Resume")
+@Composable
+private fun PreviewStoppedResume() {
+    StopWatchContent(
+        uiState = StopWatchUiState(
+            currentTime = "오전 03:22",
+            currentDate = "6월 7일 (일)",
+            lastTypeId = 1,
+            logTypes = listOf(
+                LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:42", false, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
             )
         ),

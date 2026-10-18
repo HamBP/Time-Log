@@ -6,12 +6,11 @@
 
     <!-- StopWatch -->
     <string name="status_waiting">대기 중</string>
-    <string name="status_current_session">현재 세션</string>
     <string name="hint_tap_to_start">버튼을 눌러 시작하세요</string>
     <string name="label_focus_record">집중 시간 기록</string>
     <string name="label_rest_record">휴식 시간 기록</string>
     <string name="btn_stop">정지</string>
-    <string name="btn_stop_subtitle">타이머 중지</string>
+    <string name="btn_start">시작</string>
     <string name="today_summary_title">오늘 요약</string>
     <string name="label_work">작업</string>
     <string name="label_efficiency">효율</string>

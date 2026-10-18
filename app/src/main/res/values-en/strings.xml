@@ -6,12 +6,11 @@
 
     <!-- StopWatch -->
     <string name="status_waiting">Waiting</string>
-    <string name="status_current_session">Current Session</string>
     <string name="hint_tap_to_start">Tap a button to start</string>
     <string name="label_focus_record">Focus time record</string>
     <string name="label_rest_record">Break time record</string>
     <string name="btn_stop">Stop</string>
-    <string name="btn_stop_subtitle">Stop timer</string>
+    <string name="btn_start">Start</string>
     <string name="today_summary_title">Today\'s Summary</string>
     <string name="label_work">Work</string>
     <string name="label_efficiency">Efficiency</string>
