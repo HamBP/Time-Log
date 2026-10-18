@@ -17,6 +17,7 @@ import me.algosketch.timelog.R
 import me.algosketch.timelog.data.LogRepository
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.ui.theme.toComposeColor
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -35,8 +36,11 @@ class StopWatchViewModel @Inject constructor(
 
     private var sessionStartTime: LocalDateTime? = null
     private var timerJob: Job? = null
+    private var midnightJob: Job? = null
     private val accumulatedSeconds = mutableMapOf<Int, Long>()
     private var currentTypes = listOf<LogTypeEntity>()
+    // 화면에 표시 중인 "오늘" 기록의 기준 날짜
+    private var currentDay: LocalDate = LocalDate.now()
 
     init {
         viewModelScope.launch {
@@ -58,6 +62,20 @@ class StopWatchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             loadSessionsFromDb()
+        }
+        scheduleMidnightRollover()
+    }
+
+    /** 자정까지 남은 시간만큼 대기한 뒤 날짜 변경을 처리한다. 호출할 때마다 남은 시간을 새로 계산한다. */
+    private fun scheduleMidnightRollover() {
+        midnightJob?.cancel()
+        midnightJob = viewModelScope.launch {
+            while (true) {
+                val now = LocalDateTime.now()
+                val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
+                delay(ChronoUnit.MILLIS.between(now, nextMidnight))
+                rolloverIfDayChanged()
+            }
         }
     }
 
@@ -92,7 +110,14 @@ class StopWatchViewModel @Inject constructor(
         }
     }
 
+    /** 백그라운드 동안 delay가 어긋났을 수 있으므로, 날짜 변경을 먼저 처리하고 자정 예약을 다시 계산한다. */
+    fun onResume() {
+        rolloverIfDayChanged()
+        scheduleMidnightRollover()
+    }
+
     fun onTypeClick(typeId: Int) {
+        rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId
         if (current == typeId) return
         if (current != null) finishSession(current)
@@ -100,6 +125,7 @@ class StopWatchViewModel @Inject constructor(
     }
 
     fun onStopClick() {
+        rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId ?: return
         finishSession(current)
         _uiState.update { it.copy(
@@ -151,6 +177,40 @@ class StopWatchViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 sessions = listOf(entry) + state.sessions,
+                logTypes = buildLogTypeUiItems(),
+                todaySummary = computeTodaySummary(),
+            )
+        }
+    }
+
+    /**
+     * 날짜가 바뀌었으면 진행 중인 세션을 자정 기준으로 끊어 저장하고, 오늘 기록을 초기화한다.
+     * 진행 중이던 세션은 같은 타입으로 오늘 0시부터 이어서 기록한다.
+     */
+    private fun rolloverIfDayChanged() {
+        val today = LocalDate.now()
+        if (!today.isAfter(currentDay)) return
+        currentDay = today
+
+        val activeTypeId = _uiState.value.activeTypeId
+        val startTime = sessionStartTime
+        if (activeTypeId != null && startTime != null) {
+            // 여러 날에 걸쳐 있으면 날짜마다 끊어서 저장한다.
+            val midnight = today.atStartOfDay()
+            var segmentStart: LocalDateTime = startTime
+            while (segmentStart < midnight) {
+                val segmentEnd = segmentStart.toLocalDate().plusDays(1).atStartOfDay()
+                val start = segmentStart
+                viewModelScope.launch { repository.saveSession(activeTypeId, start, segmentEnd) }
+                segmentStart = segmentEnd
+            }
+            sessionStartTime = segmentStart
+        }
+
+        accumulatedSeconds.clear()
+        _uiState.update { state ->
+            state.copy(
+                sessions = emptyList(),
                 logTypes = buildLogTypeUiItems(),
                 todaySummary = computeTodaySummary(),
             )
