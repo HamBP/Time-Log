@@ -111,13 +111,6 @@ private fun StopWatchContent(
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
             )
         }
-        item {
-            ActionButtonList(
-                logTypes = uiState.logTypes,
-                onTypeClick = onTypeClick,
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
-            )
-        }
         if (uiState.todaySummary != null) {
             item {
                 TodaySummaryCard(
@@ -125,6 +118,13 @@ private fun StopWatchContent(
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
                 )
             }
+        }
+        item {
+            ActionButtonList(
+                logTypes = uiState.logTypes,
+                onTypeClick = onTypeClick,
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
+            )
         }
         if (uiState.sessions.isNotEmpty()) {
             item {
