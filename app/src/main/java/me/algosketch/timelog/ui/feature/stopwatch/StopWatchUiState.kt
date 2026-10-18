@@ -30,6 +30,8 @@ data class StopWatchUiState(
     val currentTime: String = "",
     val currentDate: String = "",
     val activeTypeId: Int? = null,
+    // 정지 상태에서 시작 버튼으로 이어서 기록할 타입 (마지막으로 기록한 타입)
+    val lastTypeId: Int? = null,
     val elapsedTime: String = "00:00",
     val logTypes: List<LogTypeUiItem> = emptyList(),
     val todaySummary: TodaySummary? = null,

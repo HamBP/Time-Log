@@ -18,6 +18,9 @@ interface LogSessionDao {
     @Query("SELECT * FROM log_sessions WHERE startedAt >= :startOfDay ORDER BY startedAt DESC")
     suspend fun getSessionsAfter(startOfDay: Long): List<LogSessionEntity>
 
+    @Query("SELECT typeId FROM log_sessions ORDER BY endedAt DESC LIMIT 1")
+    suspend fun getLastSessionTypeId(): Int?
+
     @Query("""
         SELECT
           date(s.startedAt, 'unixepoch', 'localtime') AS date,

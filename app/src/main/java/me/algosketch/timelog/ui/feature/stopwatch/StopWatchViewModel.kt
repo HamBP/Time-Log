@@ -110,6 +110,10 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private suspend fun loadSessionsFromDb() {
+        val lastTypeId = repository.getLastSessionTypeId()
+        // 로딩 중에 이미 기록을 시작했다면 그 타입이 더 최신이다.
+        _uiState.update { it.copy(lastTypeId = it.lastTypeId ?: lastTypeId) }
+
         val types = repository.getActiveLogTypes()
         val dbSessions = repository.getTodaySessions()
 
@@ -171,6 +175,7 @@ class StopWatchViewModel @Inject constructor(
         sessionStartTime = LocalDateTime.now()
         _uiState.update { it.copy(
             activeTypeId = typeId,
+            lastTypeId = typeId,
             elapsedTime = formatElapsed(0L),
             logTypes = buildLogTypeUiItems(activeTypeId = typeId),
         ) }
