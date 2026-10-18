@@ -38,7 +38,6 @@
     <string name="btn_save">Save</string>
 
     <!-- History -->
-    <string name="history_label">HISTORY</string>
     <string name="history_title">This Month\'s Productivity</string>
     <string name="label_avg_efficiency">Avg Efficiency</string>
     <string name="label_total_work">Total Work</string>

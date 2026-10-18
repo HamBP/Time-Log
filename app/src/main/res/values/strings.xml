@@ -38,7 +38,6 @@
     <string name="btn_save">저장</string>
 
     <!-- History -->
-    <string name="history_label">히스토리</string>
     <string name="history_title">이번 달 생산성</string>
     <string name="label_avg_efficiency">평균 효율</string>
     <string name="label_total_work">총 작업</string>

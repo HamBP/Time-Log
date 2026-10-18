@@ -38,7 +38,6 @@
     <string name="btn_save">Guardar</string>
 
     <!-- History -->
-    <string name="history_label">HISTORIAL</string>
     <string name="history_title">Productividad del mes</string>
     <string name="label_avg_efficiency">Eficiencia media</string>
     <string name="label_total_work">Trabajo total</string>

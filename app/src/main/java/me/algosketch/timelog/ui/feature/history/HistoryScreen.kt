@@ -99,15 +99,6 @@ private fun HistoryHeader() {
             .padding(start = 24.dp, end = 24.dp, top = 28.dp)
     ) {
         Text(
-            text = stringResource(R.string.history_label),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Normal,
-            letterSpacing = 0.88.sp,
-            color = TextTertiary,
-            lineHeight = 16.5.sp
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
             text = stringResource(R.string.history_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.Medium,

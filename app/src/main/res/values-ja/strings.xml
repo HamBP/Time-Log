@@ -38,7 +38,6 @@
     <string name="btn_save">保存</string>
 
     <!-- History -->
-    <string name="history_label">履歴</string>
     <string name="history_title">今月の生産性</string>
     <string name="label_avg_efficiency">平均効率</string>
     <string name="label_total_work">総作業</string>
