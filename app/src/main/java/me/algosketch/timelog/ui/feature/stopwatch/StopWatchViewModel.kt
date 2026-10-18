@@ -110,6 +110,12 @@ class StopWatchViewModel @Inject constructor(
         }
     }
 
+    /** 백그라운드 동안 delay가 어긋났을 수 있으므로, 날짜 변경을 먼저 처리하고 자정 예약을 다시 계산한다. */
+    fun onResume() {
+        rolloverIfDayChanged()
+        scheduleMidnightRollover()
+    }
+
     fun onTypeClick(typeId: Int) {
         rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId
