@@ -72,7 +72,7 @@ class LogRepository @Inject constructor(
         return logSessionDao.getSessionsAfter(startOfDay)
     }
 
-    suspend fun getLastSessionTypeId(): Int? = logSessionDao.getLastSessionTypeId()
+    suspend fun getLastSession(): LogSessionEntity? = logSessionDao.getLastSession()
 
     fun getDailyAggregatesFlow(): Flow<List<DailyAggregate>> = logSessionDao.getDailyAggregates()
 
