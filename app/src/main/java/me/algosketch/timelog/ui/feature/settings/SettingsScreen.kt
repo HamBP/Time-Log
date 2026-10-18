@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.R
+import me.algosketch.timelog.ui.component.TabTitle
 import me.algosketch.timelog.ui.theme.Background
 import me.algosketch.timelog.ui.theme.Surface
 import me.algosketch.timelog.ui.theme.TextPrimary
@@ -76,7 +77,7 @@ private fun SettingsContent(
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
     ) {
-        SettingsHeader()
+        TabTitle(text = stringResource(R.string.settings_label))
 
         Text(
             text = stringResource(R.string.log_type_section_title),
@@ -105,24 +106,6 @@ private fun SettingsContent(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-@Composable
-private fun SettingsHeader() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 16.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.settings_label),
-            fontSize = 22.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = TextPrimary,
-            letterSpacing = (-0.22).sp,
-            lineHeight = 33.sp
-        )
     }
 }
 
