@@ -185,10 +185,12 @@ private fun TimerDisplay(
     onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val accentColor = activeType?.color ?: TextTertiary
-    val bgColor = if (activeType != null) accentColor.copy(alpha = 0.08f) else TextTertiary.copy(alpha = 0.06f)
-    val borderColor = if (activeType != null) accentColor.copy(alpha = 0.25f) else TextTertiary.copy(alpha = 0.15f)
-    val statusLabel = activeType?.name ?: stringResource(R.string.status_waiting)
+    // 정지 상태에서도 마지막으로 기록한 타입의 모습을 그대로 보여준다.
+    val displayType = activeType ?: lastType
+    val accentColor = displayType?.color ?: TextTertiary
+    val bgColor = if (displayType != null) accentColor.copy(alpha = 0.08f) else TextTertiary.copy(alpha = 0.06f)
+    val borderColor = if (displayType != null) accentColor.copy(alpha = 0.25f) else TextTertiary.copy(alpha = 0.15f)
+    val statusLabel = displayType?.name ?: stringResource(R.string.status_waiting)
     val dotAlpha = if (activeType != null) 0.35f else 1f
 
     Column(
@@ -541,6 +543,7 @@ private fun PreviewStoppedResume() {
             currentTime = "오전 03:22",
             currentDate = "6월 7일 (일)",
             lastTypeId = 1,
+            elapsedTime = "00:42",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:42", false, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
