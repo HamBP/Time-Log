@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import me.algosketch.timelog.R
 import me.algosketch.timelog.data.LogRepository
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
+import me.algosketch.timelog.notification.RecordingNotifier
 import me.algosketch.timelog.ui.theme.toComposeColor
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,7 +29,8 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class StopWatchViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val repository: LogRepository
+    private val repository: LogRepository,
+    private val recordingNotifier: RecordingNotifier,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopWatchUiState())
@@ -41,6 +43,7 @@ class StopWatchViewModel @Inject constructor(
     private var currentTypes = listOf<LogTypeEntity>()
     // 화면에 표시 중인 "오늘" 기록의 기준 날짜
     private var currentDay: LocalDate = LocalDate.now()
+    private var isInBackground = false
 
     init {
         viewModelScope.launch {
@@ -58,12 +61,39 @@ class StopWatchViewModel @Inject constructor(
                         todaySummary = computeTodaySummary(),
                     )
                 }
+                updateRecordingNotification()
             }
         }
         viewModelScope.launch {
             loadSessionsFromDb()
         }
+        viewModelScope.launch {
+            recordingNotifier.stopRequests.collect { onStopClick() }
+        }
         scheduleMidnightRollover()
+    }
+
+    fun onAppBackground() {
+        isInBackground = true
+        updateRecordingNotification()
+    }
+
+    fun onAppForeground() {
+        isInBackground = false
+        recordingNotifier.cancel()
+    }
+
+    /** 백그라운드에서 기록 중일 때만 알림을 띄운다. */
+    private fun updateRecordingNotification() {
+        if (!isInBackground) return
+        val activeTypeId = _uiState.value.activeTypeId
+        val startTime = sessionStartTime
+        if (activeTypeId == null || startTime == null) {
+            recordingNotifier.cancel()
+            return
+        }
+        val typeName = currentTypes.firstOrNull { it.id == activeTypeId }?.name ?: ""
+        recordingNotifier.show(typeName, startTime)
     }
 
     /** 자정까지 남은 시간만큼 대기한 뒤 날짜 변경을 처리한다. 호출할 때마다 남은 시간을 새로 계산한다. */
@@ -133,6 +163,7 @@ class StopWatchViewModel @Inject constructor(
             elapsedTime = formatElapsed(0L),
             logTypes = buildLogTypeUiItems(activeTypeId = null),
         ) }
+        updateRecordingNotification()
     }
 
     private fun startSession(typeId: Int) {
@@ -215,6 +246,8 @@ class StopWatchViewModel @Inject constructor(
                 todaySummary = computeTodaySummary(),
             )
         }
+        // 세션 시작 시각이 자정으로 바뀌었으므로 알림의 크로노미터도 갱신한다.
+        updateRecordingNotification()
     }
 
     private fun buildLogTypeUiItems(
@@ -283,5 +316,6 @@ class StopWatchViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
+        recordingNotifier.cancel()
     }
 }
