@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import me.algosketch.timelog.R
+import me.algosketch.timelog.ui.component.TabTitle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -70,14 +71,14 @@ private fun HistoryContent(
             .statusBarsPadding()
     ) {
         item {
-            HistoryHeader()
+            TabTitle(text = stringResource(R.string.history_title))
         }
         item {
             MonthSummaryCard(
                 avgEfficiency = "${uiState.monthlyEfficiency}%",
                 totalWork = totalWorkDisplay,
                 recordedDays = stringResource(R.string.recorded_days_value, uiState.recordedDays),
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp)
             )
         }
         item {
@@ -88,23 +89,6 @@ private fun HistoryContent(
             )
         }
         item { Spacer(modifier = Modifier.height(16.dp)) }
-    }
-}
-
-@Composable
-private fun HistoryHeader() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 28.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.history_title),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = TextPrimary,
-            lineHeight = 30.sp
-        )
     }
 }
 
