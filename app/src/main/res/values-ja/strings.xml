@@ -68,4 +68,9 @@
     <!-- Date/time format patterns -->
     <string name="time_format_pattern">a h:mm</string>
     <string name="date_format_pattern">M月d日(EEE)</string>
+
+    <!-- Recording notification -->
+    <string name="recording_channel_name">記録中の通知</string>
+    <string name="recording_notification_text">記録中</string>
+    <string name="recording_notification_stop">停止</string>
 </resources>

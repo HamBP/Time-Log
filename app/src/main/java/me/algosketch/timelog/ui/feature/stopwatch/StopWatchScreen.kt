@@ -1,5 +1,12 @@
 package me.algosketch.timelog.ui.feature.stopwatch
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -58,9 +65,22 @@ fun StopWatchScreen(viewModel: StopWatchViewModel = hiltViewModel()) {
         viewModel.onResume()
         onPauseOrDispose { }
     }
+    val context = LocalContext.current
+    // 백그라운드 기록 알림용 권한. 기록을 처음 시작할 때 요청한다.
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
     StopWatchContent(
         uiState = uiState,
-        onTypeClick = viewModel::onTypeClick,
+        onTypeClick = { typeId ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            viewModel.onTypeClick(typeId)
+        },
         onStopClick = viewModel::onStopClick,
     )
 }
