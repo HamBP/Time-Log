@@ -53,7 +53,7 @@
     <string name="cd_back">Back</string>
 
     <!-- Navigation -->
-    <string name="nav_timer">Timer</string>
+    <string name="nav_timer">Record</string>
     <string name="nav_history">History</string>
     <string name="nav_settings">Settings</string>
 

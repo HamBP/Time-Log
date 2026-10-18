@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.Composable
 import me.algosketch.timelog.R
+import me.algosketch.timelog.ui.component.TabTitle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,12 +100,16 @@ private fun StopWatchContent(
             .statusBarsPadding()
     ) {
         item {
+            // 탭 이름과 같은 문구를 제목으로 쓴다.
+            TabTitle(text = stringResource(R.string.nav_timer))
+        }
+        item {
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
                 lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
                 onStartClick = onTypeClick,
                 onStopClick = onStopClick,
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 28.dp)
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp)
             )
         }
         if (uiState.todaySummary != null) {
