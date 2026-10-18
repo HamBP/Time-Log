@@ -68,4 +68,9 @@
     <!-- Date/time format patterns (used in ViewModels via context.getString) -->
     <string name="time_format_pattern">a h:mm</string>
     <string name="date_format_pattern">M월 d일 (EEE)</string>
+
+    <!-- Recording notification -->
+    <string name="recording_channel_name">기록 중 알림</string>
+    <string name="recording_notification_text">기록 중</string>
+    <string name="recording_notification_stop">정지</string>
 </resources>

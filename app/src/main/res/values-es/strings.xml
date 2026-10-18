@@ -68,4 +68,9 @@
     <!-- Date/time format patterns -->
     <string name="time_format_pattern">H:mm</string>
     <string name="date_format_pattern">d MMM (EEE)</string>
+
+    <!-- Recording notification -->
+    <string name="recording_channel_name">Grabación en curso</string>
+    <string name="recording_notification_text">Grabando</string>
+    <string name="recording_notification_stop">Detener</string>
 </resources>
