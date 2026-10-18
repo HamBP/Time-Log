@@ -2,7 +2,6 @@
     <string name="app_name">Time Log</string>
 
     <!-- App header -->
-    <string name="app_header_label">TIME LOG</string>
 
     <!-- StopWatch -->
     <string name="status_waiting">Waiting</string>

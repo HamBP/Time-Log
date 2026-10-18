@@ -2,7 +2,6 @@
     <string name="app_name">Time Log</string>
 
     <!-- App header -->
-    <string name="app_header_label">타임 로그</string>
 
     <!-- StopWatch -->
     <string name="status_waiting">대기 중</string>

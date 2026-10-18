@@ -99,15 +99,12 @@ private fun StopWatchContent(
             .statusBarsPadding()
     ) {
         item {
-            AppHeader(currentTime = uiState.currentTime, currentDate = uiState.currentDate)
-        }
-        item {
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
                 lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
                 onStartClick = onTypeClick,
                 onStopClick = onStopClick,
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 28.dp)
             )
         }
         if (uiState.todaySummary != null) {
@@ -134,44 +131,6 @@ private fun StopWatchContent(
             }
         }
         item { Spacer(modifier = Modifier.height(16.dp)) }
-    }
-}
-
-@Composable
-private fun AppHeader(currentTime: String, currentDate: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 28.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
-        Column {
-            Text(
-                text = stringResource(R.string.app_header_label),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Normal,
-                letterSpacing = 0.88.sp,
-                color = TextTertiary,
-                lineHeight = 16.5.sp
-            )
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = currentDate,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Normal,
-                color = TextSecondary,
-                lineHeight = 19.5.sp
-            )
-        }
-        Text(
-            text = currentTime,
-            fontSize = 13.sp,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Normal,
-            color = TextTertiary,
-            lineHeight = 19.5.sp
-        )
     }
 }
 
@@ -523,8 +482,6 @@ private fun SessionItem(session: SessionEntry) {
 private fun PreviewInactive() {
     StopWatchContent(
         uiState = StopWatchUiState(
-            currentTime = "오전 03:22",
-            currentDate = "6월 7일 (일)",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:00", false, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
@@ -539,8 +496,6 @@ private fun PreviewInactive() {
 private fun PreviewStoppedResume() {
     StopWatchContent(
         uiState = StopWatchUiState(
-            currentTime = "오전 03:22",
-            currentDate = "6월 7일 (일)",
             lastTypeId = 1,
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:42", false, true),
@@ -556,8 +511,6 @@ private fun PreviewStoppedResume() {
 private fun PreviewActiveWork() {
     StopWatchContent(
         uiState = StopWatchUiState(
-            currentTime = "오전 12:17",
-            currentDate = "6월 11일 (목)",
             activeTypeId = 1,
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:02", true, true),
@@ -573,8 +526,6 @@ private fun PreviewActiveWork() {
 private fun PreviewLogged() {
     StopWatchContent(
         uiState = StopWatchUiState(
-            currentTime = "오전 03:23",
-            currentDate = "6월 7일 (일)",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:03", false, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:03", false, false),
