@@ -2,7 +2,6 @@
     <string name="app_name">Time Log</string>
 
     <!-- App header -->
-    <string name="app_header_label">TIME LOG</string>
 
     <!-- StopWatch -->
     <string name="status_waiting">En espera</string>
@@ -39,7 +38,6 @@
     <string name="btn_save">Guardar</string>
 
     <!-- History -->
-    <string name="history_label">HISTORIAL</string>
     <string name="history_title">Productividad del mes</string>
     <string name="label_avg_efficiency">Eficiencia media</string>
     <string name="label_total_work">Trabajo total</string>
@@ -55,7 +53,7 @@
     <string name="cd_back">Atrás</string>
 
     <!-- Navigation -->
-    <string name="nav_timer">Temporizador</string>
+    <string name="nav_timer">Registro</string>
     <string name="nav_history">Historial</string>
     <string name="nav_settings">Ajustes</string>
 

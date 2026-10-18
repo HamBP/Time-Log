@@ -47,12 +47,6 @@ class StopWatchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            while (true) {
-                _uiState.update { it.copy(currentTime = formatCurrentTime(), currentDate = formatCurrentDate()) }
-                delay(1.seconds)
-            }
-        }
-        viewModelScope.launch {
             repository.getLogTypesFlow().collect { types ->
                 currentTypes = types
                 _uiState.update { state ->
@@ -300,16 +294,6 @@ class StopWatchViewModel @Inject constructor(
         } else {
             "${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}"
         }
-    }
-
-    private fun formatCurrentTime(): String {
-        val pattern = context.getString(R.string.time_format_pattern)
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
-    }
-
-    private fun formatCurrentDate(): String {
-        val pattern = context.getString(R.string.date_format_pattern)
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern, Locale.getDefault()))
     }
 
     private fun formatSessionTime(time: LocalDateTime): String {

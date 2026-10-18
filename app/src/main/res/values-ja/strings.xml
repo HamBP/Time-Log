@@ -2,7 +2,6 @@
     <string name="app_name">タイムログ</string>
 
     <!-- App header -->
-    <string name="app_header_label">タイムログ</string>
 
     <!-- StopWatch -->
     <string name="status_waiting">待機中</string>
@@ -39,7 +38,6 @@
     <string name="btn_save">保存</string>
 
     <!-- History -->
-    <string name="history_label">履歴</string>
     <string name="history_title">今月の生産性</string>
     <string name="label_avg_efficiency">平均効率</string>
     <string name="label_total_work">総作業</string>
@@ -55,7 +53,7 @@
     <string name="cd_back">戻る</string>
 
     <!-- Navigation -->
-    <string name="nav_timer">タイマー</string>
+    <string name="nav_timer">記録</string>
     <string name="nav_history">履歴</string>
     <string name="nav_settings">設定</string>
 
