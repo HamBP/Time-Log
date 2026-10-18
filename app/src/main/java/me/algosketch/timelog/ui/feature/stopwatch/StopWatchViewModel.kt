@@ -36,6 +36,7 @@ class StopWatchViewModel @Inject constructor(
 
     private var sessionStartTime: LocalDateTime? = null
     private var timerJob: Job? = null
+    private var midnightJob: Job? = null
     private val accumulatedSeconds = mutableMapOf<Int, Long>()
     private var currentTypes = listOf<LogTypeEntity>()
     // 화면에 표시 중인 "오늘" 기록의 기준 날짜
@@ -61,6 +62,20 @@ class StopWatchViewModel @Inject constructor(
         }
         viewModelScope.launch {
             loadSessionsFromDb()
+        }
+        scheduleMidnightRollover()
+    }
+
+    /** 자정까지 남은 시간만큼 대기한 뒤 날짜 변경을 처리한다. 호출할 때마다 남은 시간을 새로 계산한다. */
+    private fun scheduleMidnightRollover() {
+        midnightJob?.cancel()
+        midnightJob = viewModelScope.launch {
+            while (true) {
+                val now = LocalDateTime.now()
+                val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay()
+                delay(ChronoUnit.MILLIS.between(now, nextMidnight))
+                rolloverIfDayChanged()
+            }
         }
     }
 
