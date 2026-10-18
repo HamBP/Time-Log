@@ -6,12 +6,11 @@
 
     <!-- StopWatch -->
     <string name="status_waiting">En espera</string>
-    <string name="status_current_session">Sesión actual</string>
     <string name="hint_tap_to_start">Toca un botón para iniciar</string>
     <string name="label_focus_record">Registro de tiempo enfocado</string>
     <string name="label_rest_record">Registro de tiempo de descanso</string>
     <string name="btn_stop">Detener</string>
-    <string name="btn_stop_subtitle">Detener temporizador</string>
+    <string name="btn_start">Iniciar</string>
     <string name="today_summary_title">Resumen de hoy</string>
     <string name="label_work">Trabajo</string>
     <string name="label_efficiency">Eficiencia</string>

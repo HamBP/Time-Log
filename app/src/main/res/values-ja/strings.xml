@@ -6,12 +6,11 @@
 
     <!-- StopWatch -->
     <string name="status_waiting">待機中</string>
-    <string name="status_current_session">現在のセッション</string>
     <string name="hint_tap_to_start">ボタンを押して開始</string>
     <string name="label_focus_record">集中時間の記録</string>
     <string name="label_rest_record">休憩時間の記録</string>
     <string name="btn_stop">停止</string>
-    <string name="btn_stop_subtitle">タイマー停止</string>
+    <string name="btn_start">開始</string>
     <string name="today_summary_title">今日の概要</string>
     <string name="label_work">作業</string>
     <string name="label_efficiency">効率</string>

@@ -110,6 +110,12 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private suspend fun loadSessionsFromDb() {
+        val lastSession = repository.getLastSession()
+        _uiState.update { state ->
+            // 로딩 중에 이미 기록을 시작했다면 그 타입이 더 최신이다.
+            state.copy(lastTypeId = state.lastTypeId ?: lastSession?.typeId)
+        }
+
         val types = repository.getActiveLogTypes()
         val dbSessions = repository.getTodaySessions()
 
@@ -160,7 +166,6 @@ class StopWatchViewModel @Inject constructor(
         finishSession(current)
         _uiState.update { it.copy(
             activeTypeId = null,
-            elapsedTime = formatElapsed(0L),
             logTypes = buildLogTypeUiItems(activeTypeId = null),
         ) }
         updateRecordingNotification()
@@ -171,7 +176,7 @@ class StopWatchViewModel @Inject constructor(
         sessionStartTime = LocalDateTime.now()
         _uiState.update { it.copy(
             activeTypeId = typeId,
-            elapsedTime = formatElapsed(0L),
+            lastTypeId = typeId,
             logTypes = buildLogTypeUiItems(activeTypeId = typeId),
         ) }
         timerJob = viewModelScope.launch {
@@ -180,7 +185,6 @@ class StopWatchViewModel @Inject constructor(
                 val elapsed = ChronoUnit.SECONDS.between(sessionStartTime, LocalDateTime.now())
                 _uiState.update { state ->
                     state.copy(
-                        elapsedTime = formatElapsed(elapsed),
                         logTypes = buildLogTypeUiItems(activeTypeId = typeId, activeElapsed = elapsed),
                         todaySummary = computeTodaySummary(activeTypeId = typeId, activeElapsed = elapsed),
                     )
