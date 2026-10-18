@@ -105,7 +105,6 @@ private fun StopWatchContent(
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
                 lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
-                elapsedTime = uiState.elapsedTime,
                 onStartClick = onTypeClick,
                 onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp)
@@ -180,7 +179,6 @@ private fun AppHeader(currentTime: String, currentDate: String) {
 private fun TimerDisplay(
     activeType: LogTypeUiItem?,
     lastType: LogTypeUiItem?,
-    elapsedTime: String,
     onStartClick: (Int) -> Unit,
     onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -226,7 +224,8 @@ private fun TimerDisplay(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = elapsedTime,
+            // 진행 중이든 정지 상태든 해당 타입의 오늘 누적 시간을 보여준다.
+            text = displayType?.accumulatedTime ?: "00:00",
             fontSize = 54.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Normal,
@@ -543,7 +542,6 @@ private fun PreviewStoppedResume() {
             currentTime = "오전 03:22",
             currentDate = "6월 7일 (일)",
             lastTypeId = 1,
-            elapsedTime = "00:42",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:42", false, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
@@ -561,7 +559,6 @@ private fun PreviewActiveWork() {
             currentTime = "오전 12:17",
             currentDate = "6월 11일 (목)",
             activeTypeId = 1,
-            elapsedTime = "00:02",
             logTypes = listOf(
                 LogTypeUiItem(1, "일하는 중", "▶", Color(0xFF4ADE80), "00:02", true, true),
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),

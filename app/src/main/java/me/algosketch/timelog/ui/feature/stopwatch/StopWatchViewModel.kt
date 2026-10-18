@@ -112,18 +112,8 @@ class StopWatchViewModel @Inject constructor(
     private suspend fun loadSessionsFromDb() {
         val lastSession = repository.getLastSession()
         _uiState.update { state ->
-            // 로딩 중에 이미 기록을 시작했다면 그 상태가 더 최신이다.
-            if (state.lastTypeId != null || lastSession == null) return@update state
-            // 정지 상태 화면은 마지막 세션을 멈춘 모습으로 보여준다. 오늘 기록이 아니면 시간은 00:00.
-            val isToday = lastSession.startedAt.toLocalDate() == currentDay
-            state.copy(
-                lastTypeId = lastSession.typeId,
-                elapsedTime = if (isToday) {
-                    formatElapsed(ChronoUnit.SECONDS.between(lastSession.startedAt, lastSession.endedAt))
-                } else {
-                    state.elapsedTime
-                },
-            )
+            // 로딩 중에 이미 기록을 시작했다면 그 타입이 더 최신이다.
+            state.copy(lastTypeId = state.lastTypeId ?: lastSession?.typeId)
         }
 
         val types = repository.getActiveLogTypes()
@@ -173,11 +163,9 @@ class StopWatchViewModel @Inject constructor(
     fun onStopClick() {
         rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId ?: return
-        val elapsed = finishSession(current)
-        // 정지한 순간의 경과 시간을 그대로 남겨 둔다.
+        finishSession(current)
         _uiState.update { it.copy(
             activeTypeId = null,
-            elapsedTime = formatElapsed(elapsed),
             logTypes = buildLogTypeUiItems(activeTypeId = null),
         ) }
         updateRecordingNotification()
@@ -189,7 +177,6 @@ class StopWatchViewModel @Inject constructor(
         _uiState.update { it.copy(
             activeTypeId = typeId,
             lastTypeId = typeId,
-            elapsedTime = formatElapsed(0L),
             logTypes = buildLogTypeUiItems(activeTypeId = typeId),
         ) }
         timerJob = viewModelScope.launch {
@@ -198,7 +185,6 @@ class StopWatchViewModel @Inject constructor(
                 val elapsed = ChronoUnit.SECONDS.between(sessionStartTime, LocalDateTime.now())
                 _uiState.update { state ->
                     state.copy(
-                        elapsedTime = formatElapsed(elapsed),
                         logTypes = buildLogTypeUiItems(activeTypeId = typeId, activeElapsed = elapsed),
                         todaySummary = computeTodaySummary(activeTypeId = typeId, activeElapsed = elapsed),
                     )
@@ -207,10 +193,9 @@ class StopWatchViewModel @Inject constructor(
         }
     }
 
-    /** 세션을 종료·저장하고 그 세션의 경과 시간(초)을 돌려준다. */
-    private fun finishSession(typeId: Int): Long {
+    private fun finishSession(typeId: Int) {
         timerJob?.cancel()
-        val startTime = sessionStartTime ?: return 0L
+        val startTime = sessionStartTime ?: return
         val endTime = LocalDateTime.now()
         val elapsed = ChronoUnit.SECONDS.between(startTime, endTime)
 
@@ -231,7 +216,6 @@ class StopWatchViewModel @Inject constructor(
                 todaySummary = computeTodaySummary(),
             )
         }
-        return elapsed
     }
 
     /**
@@ -261,8 +245,6 @@ class StopWatchViewModel @Inject constructor(
         accumulatedSeconds.clear()
         _uiState.update { state ->
             state.copy(
-                // 정지 상태로 남아 있던 시간은 어제 기록이므로 비운다.
-                elapsedTime = if (state.activeTypeId == null) formatElapsed(0L) else state.elapsedTime,
                 sessions = emptyList(),
                 logTypes = buildLogTypeUiItems(),
                 todaySummary = computeTodaySummary(),
