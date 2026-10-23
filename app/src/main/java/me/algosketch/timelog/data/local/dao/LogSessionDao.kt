@@ -21,6 +21,27 @@ interface LogSessionDao {
     @Query("SELECT * FROM log_sessions ORDER BY endedAt DESC LIMIT 1")
     suspend fun getLastSession(): LogSessionEntity?
 
+    @Query("SELECT * FROM log_sessions WHERE id = :id")
+    suspend fun getById(id: Int): LogSessionEntity?
+
+    /** 시작 시각 기준으로 바로 앞 세션. 시작 시각이 같으면 id 순서로 판단한다. */
+    @Query("""
+        SELECT * FROM log_sessions
+        WHERE startedAt < :startedAt OR (startedAt = :startedAt AND id < :id)
+        ORDER BY startedAt DESC, id DESC
+        LIMIT 1
+    """)
+    suspend fun getPrevious(id: Int, startedAt: Long): LogSessionEntity?
+
+    /** 시작 시각 기준으로 바로 뒤 세션. 시작 시각이 같으면 id 순서로 판단한다. */
+    @Query("""
+        SELECT * FROM log_sessions
+        WHERE startedAt > :startedAt OR (startedAt = :startedAt AND id > :id)
+        ORDER BY startedAt ASC, id ASC
+        LIMIT 1
+    """)
+    suspend fun getNext(id: Int, startedAt: Long): LogSessionEntity?
+
     @Query("""
         SELECT
           date(s.startedAt, 'unixepoch', 'localtime') AS date,

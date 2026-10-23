@@ -72,6 +72,19 @@ class LogRepository @Inject constructor(
         return logSessionDao.getSessionsAfterFlow(startOfDay)
     }
 
+    suspend fun getSession(id: Int): LogSessionEntity? = logSessionDao.getById(id)
+
+    /** 시간 순서상 바로 앞/뒤 세션. */
+    suspend fun getAdjacentSessions(session: LogSessionEntity): Pair<LogSessionEntity?, LogSessionEntity?> {
+        val startedAt = session.startedAt.atZone(ZoneId.systemDefault()).toEpochSecond()
+        return logSessionDao.getPrevious(session.id, startedAt) to logSessionDao.getNext(session.id, startedAt)
+    }
+
+    suspend fun updateSessionTime(id: Int, startedAt: LocalDateTime, endedAt: LocalDateTime) {
+        val existing = logSessionDao.getById(id) ?: return
+        logSessionDao.update(existing.copy(startedAt = startedAt, endedAt = endedAt))
+    }
+
     suspend fun getLastSession(): LogSessionEntity? = logSessionDao.getLastSession()
 
     fun getDailyAggregatesFlow(): Flow<List<DailyAggregate>> = logSessionDao.getDailyAggregates()
