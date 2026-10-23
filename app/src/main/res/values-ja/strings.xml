@@ -52,6 +52,17 @@
     <string name="history_detail_empty">記録されたセッションがありません</string>
     <string name="cd_back">戻る</string>
 
+    <!-- Session edit -->
+    <string name="session_edit_title">セッション編集</string>
+    <string name="field_start_time">開始時間</string>
+    <string name="field_end_time">終了時間</string>
+    <string name="unit_hour">時</string>
+    <string name="unit_minute">分</string>
+    <string name="unit_second">秒</string>
+    <string name="time_range_limit">設定可能  %1$s 〜 %2$s</string>
+    <string name="error_time_out_of_range">設定可能な範囲外です</string>
+    <string name="btn_confirm">確認</string>
+
     <!-- Navigation -->
     <string name="nav_timer">記録</string>
     <string name="nav_history">履歴</string>
@@ -64,6 +75,7 @@
 
     <!-- Date/time format patterns -->
     <string name="time_format_pattern">a h:mm</string>
+    <string name="time_seconds_format_pattern">a h:mm:ss</string>
     <string name="date_format_pattern">M月d日(EEE)</string>
 
     <!-- Recording notification -->

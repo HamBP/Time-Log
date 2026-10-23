@@ -52,6 +52,17 @@
     <string name="history_detail_empty">No sessions recorded</string>
     <string name="cd_back">Back</string>
 
+    <!-- Session edit -->
+    <string name="session_edit_title">Edit Session</string>
+    <string name="field_start_time">Start time</string>
+    <string name="field_end_time">End time</string>
+    <string name="unit_hour">Hr</string>
+    <string name="unit_minute">Min</string>
+    <string name="unit_second">Sec</string>
+    <string name="time_range_limit">Allowed  %1$s – %2$s</string>
+    <string name="error_time_out_of_range">Outside the allowed range</string>
+    <string name="btn_confirm">Confirm</string>
+
     <!-- Navigation -->
     <string name="nav_timer">Record</string>
     <string name="nav_history">History</string>
@@ -64,6 +75,7 @@
 
     <!-- Date/time format patterns -->
     <string name="time_format_pattern">h:mm a</string>
+    <string name="time_seconds_format_pattern">h:mm:ss a</string>
     <string name="date_format_pattern">MMM d (EEE)</string>
 
     <!-- Recording notification -->
