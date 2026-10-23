@@ -13,6 +13,7 @@ data class LogTypeUiItem(
 )
 
 data class SessionEntry(
+    val id: Int,
     val typeName: String,
     val color: Color,
     val time: String,

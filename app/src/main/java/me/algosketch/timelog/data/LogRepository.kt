@@ -67,9 +67,9 @@ class LogRepository @Inject constructor(
         )
     }
 
-    suspend fun getTodaySessions(): List<LogSessionEntity> {
-        val startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
-        return logSessionDao.getSessionsAfter(startOfDay)
+    fun getSessionsForDayFlow(day: LocalDate): Flow<List<LogSessionEntity>> {
+        val startOfDay = day.atStartOfDay(ZoneId.systemDefault()).toEpochSecond()
+        return logSessionDao.getSessionsAfterFlow(startOfDay)
     }
 
     suspend fun getLastSession(): LogSessionEntity? = logSessionDao.getLastSession()

@@ -537,10 +537,10 @@ private fun PreviewLogged() {
             ),
             todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
-                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
-                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
-                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
-                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
+                SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
+                SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
+                SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
+                SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
             )
         ),
         onTypeClick = {}, onStopClick = {}
