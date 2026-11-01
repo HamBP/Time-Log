@@ -42,6 +42,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 릴리스 앱과 한 기기에 함께 설치할 수 있도록 패키지를 분리한다.
+            applicationIdSuffix = ".debug"
+        }
         release {
             optimization {
                 enable = false
