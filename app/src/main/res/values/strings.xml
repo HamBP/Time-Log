@@ -52,6 +52,17 @@
     <string name="history_detail_empty">기록된 세션이 없습니다</string>
     <string name="cd_back">뒤로 가기</string>
 
+    <!-- Session edit -->
+    <string name="session_edit_title">세션 수정</string>
+    <string name="field_start_time">시작 시간</string>
+    <string name="field_end_time">종료 시간</string>
+    <string name="unit_hour">시</string>
+    <string name="unit_minute">분</string>
+    <string name="unit_second">초</string>
+    <string name="time_range_limit">가능 범위  %1$s ~ %2$s</string>
+    <string name="error_time_out_of_range">가능 범위를 벗어났습니다</string>
+    <string name="btn_confirm">확인</string>
+
     <!-- Navigation -->
     <string name="nav_timer">기록</string>
     <string name="nav_history">히스토리</string>
@@ -64,6 +75,7 @@
 
     <!-- Date/time format patterns (used in ViewModels via context.getString) -->
     <string name="time_format_pattern">a h:mm</string>
+    <string name="time_seconds_format_pattern">a h:mm:ss</string>
     <string name="date_format_pattern">M월 d일 (EEE)</string>
 
     <!-- Recording notification -->

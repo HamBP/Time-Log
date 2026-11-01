@@ -6,15 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.algosketch.timelog.R
+import me.algosketch.timelog.data.ActiveSessionHolder
 import me.algosketch.timelog.data.LogRepository
+import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.notification.RecordingNotifier
 import me.algosketch.timelog.ui.theme.toComposeColor
@@ -31,6 +35,7 @@ class StopWatchViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repository: LogRepository,
     private val recordingNotifier: RecordingNotifier,
+    private val activeSessionHolder: ActiveSessionHolder,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopWatchUiState())
@@ -41,8 +46,9 @@ class StopWatchViewModel @Inject constructor(
     private var midnightJob: Job? = null
     private val accumulatedSeconds = mutableMapOf<Int, Long>()
     private var currentTypes = listOf<LogTypeEntity>()
+    private var todaySessions = listOf<LogSessionEntity>()
     // 화면에 표시 중인 "오늘" 기록의 기준 날짜
-    private var currentDay: LocalDate = LocalDate.now()
+    private val currentDay = MutableStateFlow(LocalDate.now())
     private var isInBackground = false
 
     init {
@@ -53,14 +59,16 @@ class StopWatchViewModel @Inject constructor(
                     state.copy(
                         logTypes = buildLogTypeUiItems(),
                         todaySummary = computeTodaySummary(),
+                        sessions = buildSessionEntries(),
                     )
                 }
                 updateRecordingNotification()
             }
         }
         viewModelScope.launch {
-            loadSessionsFromDb()
+            loadLastType()
         }
+        observeTodaySessions()
         viewModelScope.launch {
             recordingNotifier.stopRequests.collect { onStopClick() }
         }
@@ -103,40 +111,39 @@ class StopWatchViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadSessionsFromDb() {
+    private suspend fun loadLastType() {
         val lastSession = repository.getLastSession()
         _uiState.update { state ->
             // 로딩 중에 이미 기록을 시작했다면 그 타입이 더 최신이다.
             state.copy(lastTypeId = state.lastTypeId ?: lastSession?.typeId)
         }
+    }
 
-        val types = repository.getActiveLogTypes()
-        val dbSessions = repository.getTodaySessions()
-
-        for (session in dbSessions) {
-            val duration = ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)
-            accumulatedSeconds[session.typeId] = (accumulatedSeconds[session.typeId] ?: 0L) + duration
-        }
-
-        if (dbSessions.isEmpty()) return
-
-        val sessionEntries = dbSessions.map { session ->
-            val type = types.firstOrNull { it.id == session.typeId }
-            val duration = ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)
-            SessionEntry(
-                typeName = type?.name ?: "",
-                color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
-                time = formatSessionTime(session.startedAt),
-                duration = formatElapsed(duration),
-            )
-        }
-
-        _uiState.update { state ->
-            state.copy(
-                sessions = sessionEntries,
-                logTypes = buildLogTypeUiItems(types),
-                todaySummary = computeTodaySummary(types),
-            )
+    /** 오늘 세션을 DB에서 구독한다. 세션 수정 화면에서 바꾼 값도 그대로 반영된다. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeTodaySessions() {
+        viewModelScope.launch {
+            currentDay
+                .flatMapLatest { day -> repository.getSessionsForDayFlow(day) }
+                .collect { sessions ->
+                    todaySessions = sessions
+                    accumulatedSeconds.clear()
+                    for (session in sessions) {
+                        val duration = ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)
+                        accumulatedSeconds[session.typeId] = (accumulatedSeconds[session.typeId] ?: 0L) + duration
+                    }
+                    val activeElapsed = sessionStartTime
+                        ?.takeIf { _uiState.value.activeTypeId != null }
+                        ?.let { ChronoUnit.SECONDS.between(it, LocalDateTime.now()) }
+                        ?: 0L
+                    _uiState.update { state ->
+                        state.copy(
+                            sessions = buildSessionEntries(),
+                            logTypes = buildLogTypeUiItems(activeElapsed = activeElapsed),
+                            todaySummary = computeTodaySummary(activeElapsed = activeElapsed),
+                        )
+                    }
+                }
         }
     }
 
@@ -158,6 +165,7 @@ class StopWatchViewModel @Inject constructor(
         rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId ?: return
         finishSession(current)
+        activeSessionHolder.set(null)
         _uiState.update { it.copy(
             activeTypeId = null,
             logTypes = buildLogTypeUiItems(activeTypeId = null),
@@ -168,6 +176,7 @@ class StopWatchViewModel @Inject constructor(
     private fun startSession(typeId: Int) {
         timerJob?.cancel()
         sessionStartTime = LocalDateTime.now()
+        activeSessionHolder.set(sessionStartTime)
         _uiState.update { it.copy(
             activeTypeId = typeId,
             lastTypeId = typeId,
@@ -193,19 +202,12 @@ class StopWatchViewModel @Inject constructor(
         val endTime = LocalDateTime.now()
         val elapsed = ChronoUnit.SECONDS.between(startTime, endTime)
 
+        // 저장 후 DB 구독으로 다시 계산되지만, 그 사이 누적 시간이 잠깐 줄어 보이지 않도록 먼저 더해 둔다.
         accumulatedSeconds[typeId] = (accumulatedSeconds[typeId] ?: 0L) + elapsed
         viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
 
-        val type = currentTypes.firstOrNull { it.id == typeId }
-        val entry = SessionEntry(
-            typeName = type?.name ?: "",
-            color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
-            time = formatSessionTime(startTime),
-            duration = formatElapsed(elapsed),
-        )
         _uiState.update { state ->
             state.copy(
-                sessions = listOf(entry) + state.sessions,
                 logTypes = buildLogTypeUiItems(),
                 todaySummary = computeTodaySummary(),
             )
@@ -218,8 +220,8 @@ class StopWatchViewModel @Inject constructor(
      */
     private fun rolloverIfDayChanged() {
         val today = LocalDate.now()
-        if (!today.isAfter(currentDay)) return
-        currentDay = today
+        if (!today.isAfter(currentDay.value)) return
+        currentDay.value = today
 
         val activeTypeId = _uiState.value.activeTypeId
         val startTime = sessionStartTime
@@ -234,8 +236,10 @@ class StopWatchViewModel @Inject constructor(
                 segmentStart = segmentEnd
             }
             sessionStartTime = segmentStart
+            activeSessionHolder.set(segmentStart)
         }
 
+        todaySessions = emptyList()
         accumulatedSeconds.clear()
         _uiState.update { state ->
             state.copy(
@@ -246,6 +250,17 @@ class StopWatchViewModel @Inject constructor(
         }
         // 세션 시작 시각이 자정으로 바뀌었으므로 알림의 크로노미터도 갱신한다.
         updateRecordingNotification()
+    }
+
+    private fun buildSessionEntries(): List<SessionEntry> = todaySessions.map { session ->
+        val type = currentTypes.firstOrNull { it.id == session.typeId }
+        SessionEntry(
+            id = session.id,
+            typeName = type?.name ?: "",
+            color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
+            time = formatSessionTime(session.startedAt),
+            duration = formatElapsed(ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)),
+        )
     }
 
     private fun buildLogTypeUiItems(
@@ -305,5 +320,6 @@ class StopWatchViewModel @Inject constructor(
         super.onCleared()
         timerJob?.cancel()
         recordingNotifier.cancel()
+        activeSessionHolder.set(null)
     }
 }

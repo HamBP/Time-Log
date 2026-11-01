@@ -45,6 +45,7 @@ import kotlinx.serialization.Serializable
 import me.algosketch.timelog.ui.feature.history.HistoryScreen
 import me.algosketch.timelog.ui.feature.historydetail.HistoryDetailScreen
 import me.algosketch.timelog.ui.feature.logtypeform.LogTypeFormScreen
+import me.algosketch.timelog.ui.feature.sessionedit.SessionEditScreen
 import me.algosketch.timelog.ui.feature.settings.SettingsScreen
 import me.algosketch.timelog.ui.feature.stopwatch.StopWatchScreen
 import me.algosketch.timelog.ui.theme.Background
@@ -57,6 +58,7 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 @Serializable data class HistoryDetailDestination(val date: String) : NavKey
 @Serializable data object LogTypeAddDestination : NavKey
 @Serializable data class LogTypeEditDestination(val typeId: Int) : NavKey
+@Serializable data class SessionEditDestination(val sessionId: Int) : NavKey
 
 @Composable
 fun AppNavigation() {
@@ -93,7 +95,10 @@ fun AppNavigation() {
                 // 진행 중인 세션은 정지 시점에만 DB에 저장되므로, 탭 전환으로 엔트리가 pop되어도
                 // 타이머가 살아있도록 Activity 스코프 ViewModel을 유지한다.
                 entry<TimerDestination> {
-                    StopWatchScreen(viewModel = hiltViewModel(activityViewModelStoreOwner))
+                    StopWatchScreen(
+                        viewModel = hiltViewModel(activityViewModelStoreOwner),
+                        onSessionClick = { id -> backStack.add(SessionEditDestination(id)) }
+                    )
                 }
                 entry<HistoryDestination> {
                     HistoryScreen(
@@ -109,6 +114,12 @@ fun AppNavigation() {
                 entry<HistoryDetailDestination> { key ->
                     HistoryDetailScreen(
                         date = key.date,
+                        onBack = { backStack.removeLastOrNull() }
+                    )
+                }
+                entry<SessionEditDestination> { key ->
+                    SessionEditScreen(
+                        sessionId = key.sessionId,
                         onBack = { backStack.removeLastOrNull() }
                     )
                 }
