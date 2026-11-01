@@ -60,7 +60,10 @@ import me.algosketch.timelog.ui.theme.WorkGreen
 import me.algosketch.timelog.ui.util.toMaterialIcon
 
 @Composable
-fun StopWatchScreen(viewModel: StopWatchViewModel = hiltViewModel()) {
+fun StopWatchScreen(
+    viewModel: StopWatchViewModel = hiltViewModel(),
+    onSessionClick: (Int) -> Unit = {},
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleResumeEffect(viewModel) {
         viewModel.onResume()
@@ -84,6 +87,7 @@ fun StopWatchScreen(viewModel: StopWatchViewModel = hiltViewModel()) {
         uiState = uiState,
         onTypeClick = startType,
         onStopClick = viewModel::onStopClick,
+        onSessionClick = onSessionClick,
     )
 }
 
@@ -92,6 +96,7 @@ private fun StopWatchContent(
     uiState: StopWatchUiState,
     onTypeClick: (Int) -> Unit,
     onStopClick: () -> Unit,
+    onSessionClick: (Int) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -131,6 +136,7 @@ private fun StopWatchContent(
             item {
                 SessionLogSection(
                     sessions = uiState.sessions,
+                    onSessionClick = onSessionClick,
                     modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp)
                 )
             }
@@ -419,6 +425,7 @@ private fun TodaySummaryCard(
 @Composable
 private fun SessionLogSection(
     sessions: List<SessionEntry>,
+    onSessionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -432,19 +439,22 @@ private fun SessionLogSection(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            sessions.forEach { session -> SessionItem(session = session) }
+            sessions.forEach { session ->
+                SessionItem(session = session, onClick = { onSessionClick(session.id) })
+            }
         }
     }
 }
 
 @Composable
-private fun SessionItem(session: SessionEntry) {
+private fun SessionItem(session: SessionEntry, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.02f))
             .border(1.dp, Color.White.copy(alpha = 0.04f), RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
             .padding(horizontal = 13.dp, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -492,7 +502,7 @@ private fun PreviewInactive() {
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
             )
         ),
-        onTypeClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}, onSessionClick = {}
     )
 }
 
@@ -507,7 +517,7 @@ private fun PreviewStoppedResume() {
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
             )
         ),
-        onTypeClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}, onSessionClick = {}
     )
 }
 
@@ -522,7 +532,7 @@ private fun PreviewActiveWork() {
                 LogTypeUiItem(2, "쉬는 중", "☕", Color(0xFFFB923C), "00:00", false, false),
             )
         ),
-        onTypeClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}, onSessionClick = {}
     )
 }
 
@@ -537,12 +547,12 @@ private fun PreviewLogged() {
             ),
             todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
-                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
-                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
-                SessionEntry("쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
-                SessionEntry("일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
+                SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
+                SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
+                SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
+                SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
             )
         ),
-        onTypeClick = {}, onStopClick = {}
+        onTypeClick = {}, onStopClick = {}, onSessionClick = {}
     )
 }
