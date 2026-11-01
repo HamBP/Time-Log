@@ -97,6 +97,7 @@ Time Log
     ├── 테마: 다크 고정, 그린 포인트 컬러, 앱 아이콘 적용
     └── 빌드 (#23)
         ├── debug: applicationId에 .debug suffix → 릴리스 앱과 별도 앱으로 함께 설치
+        │   └── 앱 이름에 "(디버그)" suffix (src/debug/res에서 로케일별로 덮어씀)
         └── release: R8 코드 축소·최적화·난독화 + 리소스 축소 (app/proguard-rules.pro)
 ```
 
@@ -166,7 +167,7 @@ Time Log
 
 | 상황 | 현재 동작 |
 |------|-----------|
-| 디버그·릴리스 앱 동시 설치 | 패키지가 달라 별개 앱으로 설치되고 DB·알림 권한도 따로 관리된다. 런처 이름·아이콘은 같아 구분되지 않는다. |
+| 디버그·릴리스 앱 동시 설치 | 패키지가 달라 별개 앱으로 설치되고 DB·알림 권한도 따로 관리된다. 런처에서는 앱 이름의 "(디버그)" suffix로 구분한다(아이콘은 같음). |
 | Room 엔티티·projection 난독화 | 클래스명은 바뀌지만 생성 코드가 직접 생성자·필드에 접근하고 컬럼명은 SQL 문자열에 고정되어 있어 저장·조회에 영향이 없다. `AppDatabase_Impl`은 Room consumer 규칙으로 이름이 유지된다. |
 | 날짜 변환 (`Converters`) | 리플렉션 없이 생성 코드가 직접 호출하므로 영향 없다. |
 | 프로세스 재생성 후 화면 복원 | Navigation3가 저장된 클래스 이름으로 `Class.forName` 후 serializer를 찾으므로, `NavKey` 구현 클래스는 이름·멤버(`INSTANCE`, `Companion`, `serializer()`)를 유지한다. 새 목적지도 `NavKey`를 구현하면 자동으로 적용된다. |

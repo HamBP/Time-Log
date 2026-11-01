@@ -55,6 +55,7 @@ Claude Code에게 작업을 지시할 때 적용되는 규칙과, 지금까지 �
 
 ### 빌드
 - 디버그 빌드는 `.debug` applicationId suffix로 릴리스 앱과 분리한다.
+- 디버그 앱 이름은 `app/src/debug/res/values*/strings.xml`에서 `app_name`을 덮어써 "(디버그)" suffix를 붙인다. 로케일을 추가하거나 `app_name`을 바꾸면 이 파일들도 함께 고친다.
 - 릴리스 빌드는 R8 축소·난독화를 적용한다. 리플렉션·클래스 이름에 의존하는 코드를 추가하면 `app/proguard-rules.pro`에 keep 규칙을 넣고 릴리스 빌드로 확인한다.
 - AGP 9의 `optimization { }` DSL은 실험 플래그(`android.r8.gradual.support`)가 필요하므로 쓰지 않고 `isMinifyEnabled`/`isShrinkResources`를 사용한다.
 
@@ -91,3 +92,4 @@ Claude Code에게 작업을 지시할 때 적용되는 규칙과, 지금까지 �
 | 2026-10-19 | 타이머 탭 이름을 "기록"으로 바꾸고 상단에 "기록" 제목 추가. 탭 제목 규격은 세 탭 모두 설정 탭 기준으로 통일 | 공통 `TabTitle` 추가 |
 | 2026-10-19 | versionCode·versionName 마이너 버전을 1 올리고 릴리스 빌드 실행 | 1.0(1) → 1.1(2), APK·AAB 생성 |
 | 2026-11-01 | #23 구현: 디버그 빌드에 `.debug` 패키지 suffix, 릴리스 빌드에 R8 최적화·난독화 적용, DB 직렬화 영향 검토 | DB는 영향 없음, Navigation3 `NavKey`만 keep 규칙 추가 |
+| 2026-11-02 | 디버그 빌드는 앱 이름에도 "(디버그)" suffix를 붙일 것 | 로케일별 번역: (Debug), (デバッグ) |
