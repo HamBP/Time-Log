@@ -42,10 +42,18 @@ android {
     }
 
     buildTypes {
+        debug {
+            // 릴리스 앱과 한 기기에 함께 설치할 수 있도록 패키지를 분리한다.
+            applicationIdSuffix = ".debug"
+        }
         release {
-            optimization {
-                enable = false
-            }
+            // R8 코드 축소·최적화·난독화와 리소스 축소를 적용한다.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             // keystore.properties에 storeFile이 지정된 경우에만 릴리스 서명을 적용합니다.
             if (keystoreProperties.getProperty("storeFile").orEmpty().isNotBlank()) {
                 signingConfig = signingConfigs.getByName("release")

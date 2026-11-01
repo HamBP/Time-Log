@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 디버그 빌드 전용: 릴리스 앱과 런처에서 구분되도록 이름에 suffix를 붙인다. -->
+    <string name="app_name">Time Log (디버그)</string>
+</resources>
