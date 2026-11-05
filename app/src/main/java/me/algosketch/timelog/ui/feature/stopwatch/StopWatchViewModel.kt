@@ -300,12 +300,12 @@ class StopWatchViewModel @Inject constructor(
     private fun formatGapDuration(seconds: Long): String {
         val hours = seconds / 3600
         val minutes = (seconds % 3600) / 60
-        val duration = if (hours > 0) {
+        // "공백" 같은 문구 없이 간격만 보여준다.
+        return if (hours > 0) {
             context.getString(R.string.duration_hours_and_minutes, hours, minutes)
         } else {
             context.getString(R.string.duration_minutes_only, minutes)
         }
-        return context.getString(R.string.session_gap, duration)
     }
 
     private fun buildLogTypeUiItems(

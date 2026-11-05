@@ -16,7 +16,6 @@
     <string name="label_rest">Rest</string>
     <string name="session_log_title">Session Log</string>
     <string name="today_work_total">Today\'s work %1$s</string>
-    <string name="session_gap">%1$s gap</string>
 
     <!-- Settings -->
     <string name="settings_label">SETTINGS</string>

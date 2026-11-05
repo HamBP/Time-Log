@@ -465,7 +465,7 @@ private fun SessionLogSection(
     }
 }
 
-/** 세션 사이 공백. 카드 없이 가는 선과 문구만 표시한다. */
+/** 세션 사이 공백. 카드 없이 가는 선과 간격 시간만 표시한다. */
 @Composable
 private fun SessionGapItem(gap: SessionGap) {
     Row(
@@ -599,7 +599,7 @@ private fun PreviewLogged() {
             todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
                 SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:01"),
-                SessionGap("12분 공백"),
+                SessionGap("12분"),
                 SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:00"),
                 SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:03"),
                 SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:02"),
