@@ -15,9 +15,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -49,13 +56,20 @@ fun HistoryScreen(
     onRecordClick: (String) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    HistoryContent(uiState = uiState, onRecordClick = onRecordClick)
+    HistoryContent(
+        uiState = uiState,
+        onRecordClick = onRecordClick,
+        onPrevMonthClick = viewModel::onPrevMonthClick,
+        onNextMonthClick = viewModel::onNextMonthClick,
+    )
 }
 
 @Composable
 private fun HistoryContent(
     uiState: HistoryUiState,
     onRecordClick: (String) -> Unit = {},
+    onPrevMonthClick: () -> Unit = {},
+    onNextMonthClick: () -> Unit = {},
 ) {
     val totalWorkHours = uiState.totalWorkTime / 60
     val totalWorkMins = uiState.totalWorkTime % 60
@@ -71,15 +85,35 @@ private fun HistoryContent(
             .statusBarsPadding()
     ) {
         item {
-            TabTitle(text = stringResource(R.string.history_title))
+            TabTitle(text = stringResource(R.string.history_title, uiState.monthLabel))
         }
         item {
-            MonthSummaryCard(
-                avgEfficiency = "${uiState.monthlyEfficiency}%",
-                totalWork = totalWorkDisplay,
-                recordedDays = stringResource(R.string.recorded_days_value, uiState.recordedDays),
-                modifier = Modifier.padding(start = 24.dp, end = 24.dp)
-            )
+            // 요약 카드 좌우의 화살표로 달을 옮긴다. 화살표 자리만큼 좌우 여백을 줄인다.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MonthArrowButton(
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = stringResource(R.string.cd_prev_month),
+                    enabled = uiState.canGoPrevMonth,
+                    onClick = onPrevMonthClick,
+                )
+                MonthSummaryCard(
+                    avgEfficiency = "${uiState.monthlyEfficiency}%",
+                    totalWork = totalWorkDisplay,
+                    recordedDays = stringResource(R.string.recorded_days_value, uiState.recordedDays),
+                    modifier = Modifier.weight(1f)
+                )
+                MonthArrowButton(
+                    icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(R.string.cd_next_month),
+                    enabled = uiState.canGoNextMonth,
+                    onClick = onNextMonthClick,
+                )
+            }
         }
         item {
             DailyRecordSection(
@@ -89,6 +123,26 @@ private fun HistoryContent(
             )
         }
         item { Spacer(modifier = Modifier.height(16.dp)) }
+    }
+}
+
+@Composable
+private fun MonthArrowButton(
+    icon: ImageVector,
+    contentDescription: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    IconButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier.size(32.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = if (enabled) TextSecondary else TextTertiary.copy(alpha = 0.3f)
+        )
     }
 }
 
@@ -189,6 +243,19 @@ private fun DailyRecordSection(
             lineHeight = 16.5.sp
         )
         Spacer(modifier = Modifier.height(10.dp))
+        if (records.isEmpty()) {
+            Text(
+                text = stringResource(R.string.history_month_empty),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                color = TextTertiary,
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp)
+            )
+        }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             records.forEach { record ->
                 DailyRecordCard(
@@ -317,6 +384,9 @@ private fun DailyRecordCard(
 private fun PreviewHistoryScreen() {
     HistoryContent(
         uiState = HistoryUiState(
+            monthLabel = "6월",
+            canGoPrevMonth = true,
+            canGoNextMonth = false,
             records = listOf(
                 DailyRecord("6월 6일 (토)", 8, 80, "4시간 0분", "1시간 0분"),
                 DailyRecord("6월 5일 (금)", 12, 77, "5시간 0분", "1시간 30분"),
