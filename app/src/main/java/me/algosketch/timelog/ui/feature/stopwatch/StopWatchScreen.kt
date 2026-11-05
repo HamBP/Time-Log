@@ -112,6 +112,8 @@ private fun StopWatchContent(
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
                 lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
+                currentSessionTime = uiState.currentSessionTime,
+                todayWorkTime = uiState.todaySummary?.workTime ?: "00:00",
                 onStartClick = onTypeClick,
                 onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp)
@@ -149,6 +151,8 @@ private fun StopWatchContent(
 private fun TimerDisplay(
     activeType: LogTypeUiItem?,
     lastType: LogTypeUiItem?,
+    currentSessionTime: String,
+    todayWorkTime: String,
     onStartClick: (Int) -> Unit,
     onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -194,8 +198,8 @@ private fun TimerDisplay(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            // 진행 중이든 정지 상태든 해당 타입의 오늘 누적 시간을 보여준다.
-            text = displayType?.accumulatedTime ?: "00:00",
+            // 기록 중이면 현재 세션 경과 시간, 정지 상태면 마지막 세션 길이
+            text = currentSessionTime,
             fontSize = 54.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Normal,
@@ -203,6 +207,18 @@ private fun TimerDisplay(
             letterSpacing = (-1.08).sp,
             textAlign = TextAlign.Center,
             lineHeight = 54.sp
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // 효율 포함(작업) 타입의 오늘 합계
+        Text(
+            text = stringResource(R.string.today_work_total, todayWorkTime),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = TextTertiary,
+            textAlign = TextAlign.Center,
+            lineHeight = 18.sp
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -424,7 +440,7 @@ private fun TodaySummaryCard(
 
 @Composable
 private fun SessionLogSection(
-    sessions: List<SessionEntry>,
+    sessions: List<SessionLogItem>,
     onSessionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -439,10 +455,45 @@ private fun SessionLogSection(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            sessions.forEach { session ->
-                SessionItem(session = session, onClick = { onSessionClick(session.id) })
+            sessions.forEach { item ->
+                when (item) {
+                    is SessionEntry -> SessionItem(session = item, onClick = { onSessionClick(item.id) })
+                    is SessionGap -> SessionGapItem(gap = item)
+                }
             }
         }
+    }
+}
+
+/** 세션 사이 공백. 카드 없이 가는 선과 간격 시간만 표시한다. */
+@Composable
+private fun SessionGapItem(gap: SessionGap) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 13.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color.White.copy(alpha = 0.06f))
+        )
+        Text(
+            text = gap.duration,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = TextTertiary,
+            lineHeight = 18.sp
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color.White.copy(alpha = 0.06f))
+        )
     }
 }
 
@@ -547,10 +598,11 @@ private fun PreviewLogged() {
             ),
             todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
-                SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:01"),
-                SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:00"),
-                SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23", "00:03"),
-                SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23", "00:02"),
+                SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:01"),
+                SessionGap("12분"),
+                SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:00"),
+                SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:03"),
+                SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:02"),
             )
         ),
         onTypeClick = {}, onStopClick = {}, onSessionClick = {}
