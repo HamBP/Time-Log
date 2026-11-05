@@ -16,6 +16,7 @@
     <string name="label_rest">Descanso</string>
     <string name="session_log_title">Registro de sesiones</string>
     <string name="today_work_total">Trabajo de hoy %1$s</string>
+    <string name="session_gap">%1$s sin registro</string>
 
     <!-- Settings -->
     <string name="settings_label">AJUSTES</string>

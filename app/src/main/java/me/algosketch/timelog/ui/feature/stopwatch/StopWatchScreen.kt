@@ -440,7 +440,7 @@ private fun TodaySummaryCard(
 
 @Composable
 private fun SessionLogSection(
-    sessions: List<SessionEntry>,
+    sessions: List<SessionLogItem>,
     onSessionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -455,10 +455,45 @@ private fun SessionLogSection(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            sessions.forEach { session ->
-                SessionItem(session = session, onClick = { onSessionClick(session.id) })
+            sessions.forEach { item ->
+                when (item) {
+                    is SessionEntry -> SessionItem(session = item, onClick = { onSessionClick(item.id) })
+                    is SessionGap -> SessionGapItem(gap = item)
+                }
             }
         }
+    }
+}
+
+/** 세션 사이 공백. 카드 없이 가는 선과 문구만 표시한다. */
+@Composable
+private fun SessionGapItem(gap: SessionGap) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 13.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color.White.copy(alpha = 0.06f))
+        )
+        Text(
+            text = gap.duration,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = TextTertiary,
+            lineHeight = 18.sp
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color.White.copy(alpha = 0.06f))
+        )
     }
 }
 
@@ -564,6 +599,7 @@ private fun PreviewLogged() {
             todaySummary = TodaySummary("00:03", "48%", "00:03", 0.48f),
             sessions = listOf(
                 SessionEntry(4, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:01"),
+                SessionGap("12분 공백"),
                 SessionEntry(3, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:00"),
                 SessionEntry(2, "쉬는 중", Color(0xFFFB923C), "오전 03:23 - 오전 03:24", "00:03"),
                 SessionEntry(1, "일하는 중", Color(0xFF4ADE80), "오전 03:23 - 오전 03:24", "00:02"),

@@ -269,9 +269,22 @@ class StopWatchViewModel @Inject constructor(
         updateRecordingNotification()
     }
 
-    private fun buildSessionEntries(): List<SessionEntry> = todaySessions.map { session ->
+    /** 최신순 세션 목록을 만들고, 이웃한 세션 사이 간격이 [GAP_THRESHOLD_SECONDS] 이상이면 공백 항목을 끼워 넣는다. */
+    private fun buildSessionEntries(): List<SessionLogItem> = buildList {
+        todaySessions.forEachIndexed { index, session ->
+            add(buildSessionEntry(session))
+            // todaySessions는 시작 시각 내림차순이므로 다음 항목이 바로 이전 세션이다.
+            val previous = todaySessions.getOrNull(index + 1) ?: return@forEachIndexed
+            val gapSeconds = ChronoUnit.SECONDS.between(previous.endedAt, session.startedAt)
+            if (gapSeconds >= GAP_THRESHOLD_SECONDS) {
+                add(SessionGap(duration = formatGapDuration(gapSeconds)))
+            }
+        }
+    }
+
+    private fun buildSessionEntry(session: LogSessionEntity): SessionEntry {
         val type = currentTypes.firstOrNull { it.id == session.typeId }
-        SessionEntry(
+        return SessionEntry(
             id = session.id,
             typeName = type?.name ?: "",
             color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
@@ -282,6 +295,17 @@ class StopWatchViewModel @Inject constructor(
             ),
             duration = formatElapsed(ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)),
         )
+    }
+
+    private fun formatGapDuration(seconds: Long): String {
+        val hours = seconds / 3600
+        val minutes = (seconds % 3600) / 60
+        val duration = if (hours > 0) {
+            context.getString(R.string.duration_hours_and_minutes, hours, minutes)
+        } else {
+            context.getString(R.string.duration_minutes_only, minutes)
+        }
+        return context.getString(R.string.session_gap, duration)
     }
 
     private fun buildLogTypeUiItems(
@@ -342,5 +366,10 @@ class StopWatchViewModel @Inject constructor(
         timerJob?.cancel()
         recordingNotifier.cancel()
         activeSessionHolder.set(null)
+    }
+
+    private companion object {
+        // 세션 사이 공백을 표시하는 최소 간격 (5분)
+        const val GAP_THRESHOLD_SECONDS = 5 * 60L
     }
 }

@@ -12,13 +12,21 @@ data class LogTypeUiItem(
     val includeEfficiency: Boolean,
 )
 
+/** 세션 기록 목록의 한 줄. 세션 카드 또는 세션 사이의 공백. */
+sealed interface SessionLogItem
+
 data class SessionEntry(
     val id: Int,
     val typeName: String,
     val color: Color,
     val time: String,
     val duration: String,
-)
+) : SessionLogItem
+
+/** 연속한 두 세션 사이 간격이 5분 이상일 때 그 사이에 표시하는 공백. */
+data class SessionGap(
+    val duration: String,
+) : SessionLogItem
 
 data class TodaySummary(
     val workTime: String,
@@ -35,5 +43,5 @@ data class StopWatchUiState(
     val currentSessionTime: String = "00:00",
     val logTypes: List<LogTypeUiItem> = emptyList(),
     val todaySummary: TodaySummary? = null,
-    val sessions: List<SessionEntry> = emptyList(),
+    val sessions: List<SessionLogItem> = emptyList(),
 )

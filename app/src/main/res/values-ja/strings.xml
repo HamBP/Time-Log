@@ -16,6 +16,7 @@
     <string name="label_rest">休憩</string>
     <string name="session_log_title">セッション記録</string>
     <string name="today_work_total">今日の作業 %1$s</string>
+    <string name="session_gap">%1$s の空白</string>
 
     <!-- Settings -->
     <string name="settings_label">設定</string>

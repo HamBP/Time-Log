@@ -16,6 +16,7 @@
     <string name="label_rest">휴식</string>
     <string name="session_log_title">세션 기록</string>
     <string name="today_work_total">오늘 작업 %1$s</string>
+    <string name="session_gap">%1$s 공백</string>
 
     <!-- Settings -->
     <string name="settings_label">설정</string>
