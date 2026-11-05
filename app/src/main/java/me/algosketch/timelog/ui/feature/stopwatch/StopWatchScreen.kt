@@ -112,6 +112,8 @@ private fun StopWatchContent(
             TimerDisplay(
                 activeType = uiState.logTypes.firstOrNull { it.isActive },
                 lastType = uiState.logTypes.firstOrNull { it.id == uiState.lastTypeId },
+                currentSessionTime = uiState.currentSessionTime,
+                todayWorkTime = uiState.todaySummary?.workTime ?: "00:00",
                 onStartClick = onTypeClick,
                 onStopClick = onStopClick,
                 modifier = Modifier.padding(start = 24.dp, end = 24.dp)
@@ -149,6 +151,8 @@ private fun StopWatchContent(
 private fun TimerDisplay(
     activeType: LogTypeUiItem?,
     lastType: LogTypeUiItem?,
+    currentSessionTime: String,
+    todayWorkTime: String,
     onStartClick: (Int) -> Unit,
     onStopClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -194,8 +198,8 @@ private fun TimerDisplay(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            // 진행 중이든 정지 상태든 해당 타입의 오늘 누적 시간을 보여준다.
-            text = displayType?.accumulatedTime ?: "00:00",
+            // 기록 중이면 현재 세션 경과 시간, 정지 상태면 마지막 세션 길이
+            text = currentSessionTime,
             fontSize = 54.sp,
             fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Normal,
@@ -203,6 +207,18 @@ private fun TimerDisplay(
             letterSpacing = (-1.08).sp,
             textAlign = TextAlign.Center,
             lineHeight = 54.sp
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // 효율 포함(작업) 타입의 오늘 합계
+        Text(
+            text = stringResource(R.string.today_work_total, todayWorkTime),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Normal,
+            color = TextTertiary,
+            textAlign = TextAlign.Center,
+            lineHeight = 18.sp
         )
 
         Spacer(modifier = Modifier.height(12.dp))

@@ -141,6 +141,12 @@ class StopWatchViewModel @Inject constructor(
                             sessions = buildSessionEntries(),
                             logTypes = buildLogTypeUiItems(activeElapsed = activeElapsed),
                             todaySummary = computeTodaySummary(activeElapsed = activeElapsed),
+                            currentSessionTime = if (state.activeTypeId != null) {
+                                formatElapsed(activeElapsed)
+                            } else {
+                                // 정지 상태에서는 가장 최근 세션의 길이를 보여준다. 수정 화면에서 바꾼 값도 반영된다.
+                                formatElapsed(sessions.firstOrNull()?.let { ChronoUnit.SECONDS.between(it.startedAt, it.endedAt) } ?: 0L)
+                            },
                         )
                     }
                 }
@@ -180,6 +186,7 @@ class StopWatchViewModel @Inject constructor(
         _uiState.update { it.copy(
             activeTypeId = typeId,
             lastTypeId = typeId,
+            currentSessionTime = formatElapsed(0L),
             logTypes = buildLogTypeUiItems(activeTypeId = typeId),
         ) }
         timerJob = viewModelScope.launch {
@@ -188,6 +195,7 @@ class StopWatchViewModel @Inject constructor(
                 val elapsed = ChronoUnit.SECONDS.between(sessionStartTime, LocalDateTime.now())
                 _uiState.update { state ->
                     state.copy(
+                        currentSessionTime = formatElapsed(elapsed),
                         logTypes = buildLogTypeUiItems(activeTypeId = typeId, activeElapsed = elapsed),
                         todaySummary = computeTodaySummary(activeTypeId = typeId, activeElapsed = elapsed),
                     )
@@ -208,6 +216,8 @@ class StopWatchViewModel @Inject constructor(
 
         _uiState.update { state ->
             state.copy(
+                // 정지 후에도 방금 끝난 세션의 길이를 그대로 보여준다.
+                currentSessionTime = formatElapsed(elapsed),
                 logTypes = buildLogTypeUiItems(),
                 todaySummary = computeTodaySummary(),
             )
@@ -244,6 +254,13 @@ class StopWatchViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 sessions = emptyList(),
+                // 기록 중이면 0시부터 이어지는 세션의 경과 시간, 정지 상태면 오늘 세션이 없으므로 00:00
+                currentSessionTime = formatElapsed(
+                    sessionStartTime
+                        ?.takeIf { activeTypeId != null }
+                        ?.let { ChronoUnit.SECONDS.between(it, LocalDateTime.now()) }
+                        ?: 0L
+                ),
                 logTypes = buildLogTypeUiItems(),
                 todaySummary = computeTodaySummary(),
             )

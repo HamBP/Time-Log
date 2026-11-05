@@ -31,6 +31,8 @@ data class StopWatchUiState(
     val activeTypeId: Int? = null,
     // 정지 상태에서 시작 버튼으로 이어서 기록할 타입 (마지막으로 기록한 타입)
     val lastTypeId: Int? = null,
+    // 타이머 카드의 큰 시간: 기록 중이면 현재 세션 경과 시간, 정지 상태면 마지막 세션 길이
+    val currentSessionTime: String = "00:00",
     val logTypes: List<LogTypeUiItem> = emptyList(),
     val todaySummary: TodaySummary? = null,
     val sessions: List<SessionEntry> = emptyList(),
