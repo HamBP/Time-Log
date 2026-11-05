@@ -275,7 +275,11 @@ class StopWatchViewModel @Inject constructor(
             id = session.id,
             typeName = type?.name ?: "",
             color = type?.colorHex?.toComposeColor() ?: Color(0xFF808080),
-            time = formatSessionTime(session.startedAt),
+            time = context.getString(
+                R.string.session_time_range,
+                formatSessionTime(session.startedAt),
+                formatSessionTime(session.endedAt),
+            ),
             duration = formatElapsed(ChronoUnit.SECONDS.between(session.startedAt, session.endedAt)),
         )
     }
