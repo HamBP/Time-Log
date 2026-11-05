@@ -39,7 +39,10 @@
     <string name="btn_save">저장</string>
 
     <!-- History -->
-    <string name="history_title">이번 달 생산성</string>
+    <string name="history_title">%1$s 생산성</string>
+    <string name="history_month_empty">이 달의 기록이 없습니다</string>
+    <string name="cd_prev_month">이전 달</string>
+    <string name="cd_next_month">다음 달</string>
     <string name="label_avg_efficiency">평균 효율</string>
     <string name="label_total_work">총 작업</string>
     <string name="label_recorded_days">기록 일수</string>
@@ -78,6 +81,8 @@
     <string name="time_format_pattern">a h:mm</string>
     <string name="time_seconds_format_pattern">a h:mm:ss</string>
     <string name="date_format_pattern">M월 d일 (EEE)</string>
+    <string name="month_format_pattern">M월</string>
+    <string name="year_month_format_pattern">yyyy년 M월</string>
 
     <!-- Recording notification -->
     <string name="recording_channel_name">기록 중 알림</string>

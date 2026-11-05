@@ -39,7 +39,10 @@
     <string name="btn_save">保存</string>
 
     <!-- History -->
-    <string name="history_title">今月の生産性</string>
+    <string name="history_title">%1$sの生産性</string>
+    <string name="history_month_empty">この月の記録はありません</string>
+    <string name="cd_prev_month">前の月</string>
+    <string name="cd_next_month">次の月</string>
     <string name="label_avg_efficiency">平均効率</string>
     <string name="label_total_work">総作業</string>
     <string name="label_recorded_days">記録日数</string>
@@ -78,6 +81,8 @@
     <string name="time_format_pattern">a h:mm</string>
     <string name="time_seconds_format_pattern">a h:mm:ss</string>
     <string name="date_format_pattern">M月d日(EEE)</string>
+    <string name="month_format_pattern">M月</string>
+    <string name="year_month_format_pattern">yyyy年M月</string>
 
     <!-- Recording notification -->
     <string name="recording_channel_name">記録中の通知</string>

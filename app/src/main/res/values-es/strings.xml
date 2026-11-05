@@ -39,7 +39,10 @@
     <string name="btn_save">Guardar</string>
 
     <!-- History -->
-    <string name="history_title">Productividad del mes</string>
+    <string name="history_title">Productividad de %1$s</string>
+    <string name="history_month_empty">No hay registros este mes</string>
+    <string name="cd_prev_month">Mes anterior</string>
+    <string name="cd_next_month">Mes siguiente</string>
     <string name="label_avg_efficiency">Eficiencia media</string>
     <string name="label_total_work">Trabajo total</string>
     <string name="label_recorded_days">Días registrados</string>
@@ -78,6 +81,8 @@
     <string name="time_format_pattern">H:mm</string>
     <string name="time_seconds_format_pattern">H:mm:ss</string>
     <string name="date_format_pattern">d MMM (EEE)</string>
+    <string name="month_format_pattern">MMMM</string>
+    <string name="year_month_format_pattern">MMMM \'de\' yyyy</string>
 
     <!-- Recording notification -->
     <string name="recording_channel_name">Grabación en curso</string>
