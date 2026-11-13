@@ -86,7 +86,7 @@ class SessionEditViewModel @Inject constructor(
         val lower = listOfNotNull(previous?.endedAt, date.atStartOfDay()).max()
         val upper = listOfNotNull(
             next?.startedAt,
-            activeSessionHolder.startedAt.value,
+            activeSessionHolder.session.value?.startedAt,
             LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS),
             date.atTime(LocalTime.MAX).truncatedTo(ChronoUnit.SECONDS),
         ).min()
