@@ -11,9 +11,6 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import me.algosketch.timelog.R
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -26,10 +23,6 @@ class RecordingNotifier @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     private val notificationManager = NotificationManagerCompat.from(context)
-
-    private val _stopRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    /** 알림의 정지 버튼이 눌렸을 때 발행된다. */
-    val stopRequests: SharedFlow<Unit> = _stopRequests.asSharedFlow()
 
     fun createChannel() {
         val channel = NotificationChannel(
@@ -74,15 +67,6 @@ class RecordingNotifier @Inject constructor(
 
     fun cancel() {
         notificationManager.cancel(NOTIFICATION_ID)
-    }
-
-    /** 세션을 들고 있는 화면이 없으면(프로세스가 새로 뜬 경우 등) 알림만 지운다. */
-    fun requestStop() {
-        if (_stopRequests.subscriptionCount.value == 0) {
-            cancel()
-        } else {
-            _stopRequests.tryEmit(Unit)
-        }
     }
 
     private fun hasPermission(): Boolean =
