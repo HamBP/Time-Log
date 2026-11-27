@@ -45,7 +45,10 @@ class StopWatchViewModel @Inject constructor(
     private var timerJob: Job? = null
     private var midnightJob: Job? = null
     private val accumulatedSeconds = mutableMapOf<Int, Long>()
+    // 기록 버튼에 표시하는 활성 타입
     private var currentTypes = listOf<LogTypeEntity>()
+    // 숨김 타입까지 포함한 전체 타입. 오늘 요약·세션 목록·알림에서 이름과 색상을 찾을 때 쓴다.
+    private var allTypes = listOf<LogTypeEntity>()
     private var todaySessions = listOf<LogSessionEntity>()
     // 화면에 표시 중인 "오늘" 기록의 기준 날짜
     private val currentDay = MutableStateFlow(LocalDate.now())
@@ -53,8 +56,14 @@ class StopWatchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.getLogTypesFlow().collect { types ->
-                currentTypes = types
+            repository.getAllLogTypesFlow().collect { types ->
+                allTypes = types
+                currentTypes = types.filter { it.isActive }
+                // 기록 중인 타입이 숨김 처리되면 버튼이 사라지므로 세션을 정지해 저장한다.
+                val activeTypeId = _uiState.value.activeTypeId
+                if (activeTypeId != null && currentTypes.none { it.id == activeTypeId }) {
+                    onStopClick()
+                }
                 _uiState.update { state ->
                     state.copy(
                         logTypes = buildLogTypeUiItems(),
@@ -126,7 +135,7 @@ class StopWatchViewModel @Inject constructor(
             recordingNotifier.cancel()
             return
         }
-        val typeName = currentTypes.firstOrNull { it.id == activeTypeId }?.name ?: ""
+        val typeName = allTypes.firstOrNull { it.id == activeTypeId }?.name ?: ""
         recordingNotifier.show(typeName, startTime)
     }
 
@@ -314,7 +323,7 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private fun buildSessionEntry(session: LogSessionEntity): SessionEntry {
-        val type = currentTypes.firstOrNull { it.id == session.typeId }
+        val type = allTypes.firstOrNull { it.id == session.typeId }
         return SessionEntry(
             id = session.id,
             typeName = type?.name ?: "",
@@ -358,7 +367,7 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private fun computeTodaySummary(
-        types: List<LogTypeEntity> = currentTypes,
+        types: List<LogTypeEntity> = allTypes,
         activeTypeId: Int? = _uiState.value.activeTypeId,
         activeElapsed: Long = 0L,
     ): TodaySummary? {

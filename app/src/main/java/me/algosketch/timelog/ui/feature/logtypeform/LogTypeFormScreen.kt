@@ -18,8 +18,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,8 +42,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import me.algosketch.timelog.R
 import me.algosketch.timelog.ui.component.TimeLogAppBar
 import me.algosketch.timelog.ui.theme.Background
+import me.algosketch.timelog.ui.theme.ErrorRed
 import me.algosketch.timelog.ui.theme.Surface
 import me.algosketch.timelog.ui.theme.TextPrimary
+import me.algosketch.timelog.ui.theme.TextSecondary
 import me.algosketch.timelog.ui.theme.TextTertiary
 import me.algosketch.timelog.ui.theme.WorkGreen
 import me.algosketch.timelog.ui.util.toMaterialIcon
@@ -64,6 +68,10 @@ fun LogTypeFormScreen(
         onColorSelect = viewModel::onColorSelect,
         onEfficiencyChange = viewModel::onEfficiencyChange,
         onSave = { viewModel.onSave(onBack) },
+        onDeleteClick = viewModel::onDeleteClick,
+        onDeleteDismiss = viewModel::onDeleteDismiss,
+        onDeleteConfirm = { viewModel.onDeleteConfirm(onBack) },
+        onRestore = { viewModel.onRestore(onBack) },
     )
 }
 
@@ -76,6 +84,10 @@ private fun LogTypeFormContent(
     onColorSelect: (Int) -> Unit,
     onEfficiencyChange: (Boolean) -> Unit,
     onSave: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onDeleteDismiss: () -> Unit,
+    onDeleteConfirm: () -> Unit,
+    onRestore: () -> Unit,
 ) {
     val title = stringResource(
         if (uiState.isEditMode) R.string.log_type_edit_title else R.string.log_type_add_title
@@ -124,14 +136,101 @@ private fun LogTypeFormContent(
                 }
             }
 
-            SaveButton(
-                label = stringResource(
-                    if (uiState.isEditMode) R.string.btn_save else R.string.btn_add
-                ),
-                enabled = uiState.name.isNotBlank(),
-                onClick = onSave,
-            )
+            when {
+                // 숨김 타입은 저장 대신 복구 버튼만 보여준다.
+                uiState.isHidden -> SaveButton(
+                    label = stringResource(R.string.btn_restore),
+                    enabled = uiState.name.isNotBlank(),
+                    onClick = onRestore,
+                )
+                // 수정 모드: 삭제 버튼은 글자 크기만큼, 나머지는 저장 버튼이 차지한다.
+                uiState.isEditMode -> Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    DeleteButton(onClick = onDeleteClick)
+                    SaveButton(
+                        label = stringResource(R.string.btn_save),
+                        enabled = uiState.name.isNotBlank(),
+                        onClick = onSave,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                else -> SaveButton(
+                    label = stringResource(R.string.btn_add),
+                    enabled = uiState.name.isNotBlank(),
+                    onClick = onSave,
+                )
+            }
         }
+    }
+
+    uiState.deleteDialog?.let { dialog ->
+        DeleteConfirmDialog(
+            dialog = dialog,
+            onConfirm = onDeleteConfirm,
+            onDismiss = onDeleteDismiss,
+        )
+    }
+}
+
+@Composable
+private fun DeleteConfirmDialog(
+    dialog: DeleteDialog,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val (titleRes, messageRes, confirmRes) = when (dialog) {
+        DeleteDialog.Delete -> Triple(
+            R.string.dialog_delete_type_title,
+            R.string.dialog_delete_type_message,
+            R.string.btn_delete,
+        )
+        DeleteDialog.Hide -> Triple(
+            R.string.dialog_hide_type_title,
+            R.string.dialog_hide_type_message,
+            R.string.btn_hide,
+        )
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = Surface,
+        titleContentColor = TextPrimary,
+        textContentColor = TextSecondary,
+        title = { Text(text = stringResource(titleRes), fontSize = 17.sp, fontWeight = FontWeight.SemiBold) },
+        text = { Text(text = stringResource(messageRes), fontSize = 14.sp, lineHeight = 21.sp) },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(text = stringResource(confirmRes), fontSize = 14.sp, color = ErrorRed)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.btn_cancel), fontSize = 14.sp, color = TextSecondary)
+            }
+        },
+    )
+}
+
+/** 글자 크기만큼만 차지하는 삭제 버튼. 높이는 저장 버튼과 맞춘다. */
+@Composable
+private fun DeleteButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(ErrorRed.copy(alpha = 0.08f))
+            .border(1.dp, ErrorRed.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(15.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = stringResource(R.string.btn_delete),
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = ErrorRed,
+            lineHeight = 22.5.sp,
+        )
     }
 }
 
@@ -341,9 +440,10 @@ private fun SaveButton(
     label: String,
     enabled: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .alpha(if (enabled) 1f else 0.4f)
             .clip(RoundedCornerShape(12.dp))
@@ -370,6 +470,7 @@ private fun PreviewLogTypeFormAdd() {
         uiState = LogTypeFormUiState(name = ""),
         onBack = {}, onNameChange = {}, onIconSelect = {},
         onColorSelect = {}, onEfficiencyChange = {}, onSave = {},
+        onDeleteClick = {}, onDeleteDismiss = {}, onDeleteConfirm = {}, onRestore = {},
     )
 }
 
@@ -384,5 +485,6 @@ private fun PreviewLogTypeFormEditExcluded() {
         ),
         onBack = {}, onNameChange = {}, onIconSelect = {},
         onColorSelect = {}, onEfficiencyChange = {}, onSave = {},
+        onDeleteClick = {}, onDeleteDismiss = {}, onDeleteConfirm = {}, onRestore = {},
     )
 }

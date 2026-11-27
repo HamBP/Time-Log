@@ -10,8 +10,15 @@ import me.algosketch.timelog.data.local.entity.LogTypeEntity
 
 @Dao
 interface LogTypeDao {
-    @Query("SELECT * FROM log_types")
+    @Query("SELECT * FROM log_types ORDER BY sortOrder ASC")
     fun getAll(): Flow<List<LogTypeEntity>>
+
+    @Query("SELECT * FROM log_types WHERE isActive = 0 ORDER BY sortOrder ASC")
+    fun getAllHiddenFlow(): Flow<List<LogTypeEntity>>
+
+    /** 타입이 하나도 없으면 -1. 새 타입은 이 값 + 1을 순서로 쓴다. */
+    @Query("SELECT COALESCE(MAX(sortOrder), -1) FROM log_types")
+    suspend fun getMaxSortOrder(): Int
 
     @Query("SELECT * FROM log_types WHERE isActive = 1 ORDER BY sortOrder ASC")
     suspend fun getAllActive(): List<LogTypeEntity>
@@ -40,4 +47,7 @@ interface LogTypeDao {
 
     @Delete
     suspend fun delete(logType: LogTypeEntity)
+
+    @Query("DELETE FROM log_types WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

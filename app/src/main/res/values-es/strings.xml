@@ -23,6 +23,7 @@
     <string name="efficiency_excluded">Excluye eficiencia</string>
     <string name="btn_edit">Editar</string>
     <string name="btn_add_type">+  Agregar tipo</string>
+    <string name="hidden_log_type_section_title">TIPOS OCULTOS</string>
 
     <!-- Log type add/edit form -->
     <string name="log_type_add_title">Agregar tipo</string>
@@ -36,6 +37,14 @@
     <string name="segment_exclude">Excluir</string>
     <string name="btn_add">Agregar</string>
     <string name="btn_save">Guardar</string>
+    <string name="btn_delete">Eliminar</string>
+    <string name="btn_hide">Ocultar</string>
+    <string name="btn_restore">Restaurar</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="dialog_delete_type_title">Eliminar tipo</string>
+    <string name="dialog_delete_type_message">Se eliminará este tipo.</string>
+    <string name="dialog_hide_type_title">Ocultar tipo</string>
+    <string name="dialog_hide_type_message">Este tipo tiene registros relacionados y no se puede eliminar. Se ocultará en su lugar.</string>
 
     <!-- History -->
     <string name="history_title">Productividad del mes</string>

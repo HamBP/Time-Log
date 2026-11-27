@@ -28,6 +28,13 @@ class SettingsViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            repository.getHiddenLogTypesFlow().collect { entities ->
+                _uiState.update { state ->
+                    state.copy(hiddenLogTypes = entities.map { it.toDomain() })
+                }
+            }
+        }
     }
 }
 
