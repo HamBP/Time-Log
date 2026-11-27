@@ -15,7 +15,6 @@
     <string name="label_efficiency">Efficiency</string>
     <string name="label_rest">Rest</string>
     <string name="session_log_title">Session Log</string>
-    <string name="today_work_total">Today\'s work %1$s</string>
 
     <!-- Settings -->
     <string name="settings_label">SETTINGS</string>
@@ -24,6 +23,7 @@
     <string name="efficiency_excluded">Excludes efficiency</string>
     <string name="btn_edit">Edit</string>
     <string name="btn_add_type">+  Add new type</string>
+    <string name="hidden_log_type_section_title">HIDDEN LOG TYPES</string>
 
     <!-- Log type add/edit form -->
     <string name="log_type_add_title">Add Type</string>
@@ -37,6 +37,14 @@
     <string name="segment_exclude">Exclude</string>
     <string name="btn_add">Add</string>
     <string name="btn_save">Save</string>
+    <string name="btn_delete">Delete</string>
+    <string name="btn_hide">Hide</string>
+    <string name="btn_restore">Restore</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="dialog_delete_type_title">Delete type</string>
+    <string name="dialog_delete_type_message">This type will be deleted.</string>
+    <string name="dialog_hide_type_title">Hide type</string>
+    <string name="dialog_hide_type_message">This type has related records and cannot be deleted. It will be hidden instead.</string>
 
     <!-- History -->
     <string name="history_title">%1$s Productivity</string>

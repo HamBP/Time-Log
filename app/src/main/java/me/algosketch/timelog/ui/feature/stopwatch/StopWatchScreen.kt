@@ -213,12 +213,12 @@ private fun TimerDisplay(
 
         // 효율 포함(작업) 타입의 오늘 합계
         Text(
-            text = stringResource(R.string.today_work_total, todayWorkTime),
-            fontSize = 12.sp,
+            text = todayWorkTime,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Normal,
-            color = TextTertiary,
+            color = Color.White,
             textAlign = TextAlign.Center,
-            lineHeight = 18.sp
+            lineHeight = 21.sp
         )
 
         Spacer(modifier = Modifier.height(12.dp))

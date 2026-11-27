@@ -19,10 +19,16 @@ val iconOptions = listOf(
     "free_breakfast",
 )
 
+/** 삭제 버튼을 눌렀을 때 띄우는 확인 다이얼로그. 관련 기록이 있으면 삭제 대신 숨김 처리한다. */
+enum class DeleteDialog { Delete, Hide }
+
 data class LogTypeFormUiState(
     val name: String = "",
     val selectedIconIndex: Int = 1,
     val selectedColorIndex: Int = 2,
     val includeEfficiency: Boolean = true,
     val isEditMode: Boolean = false,
+    // 숨김 처리된 타입을 수정 중이면 저장·삭제 대신 복구 버튼을 보여준다.
+    val isHidden: Boolean = false,
+    val deleteDialog: DeleteDialog? = null,
 )

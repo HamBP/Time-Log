@@ -79,13 +79,8 @@ private fun SettingsContent(
     ) {
         TabTitle(text = stringResource(R.string.settings_label))
 
-        Text(
+        SectionTitle(
             text = stringResource(R.string.log_type_section_title),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Normal,
-            letterSpacing = 0.72.sp,
-            color = TextTertiary,
-            lineHeight = 18.sp,
             modifier = Modifier.padding(start = 24.dp, end = 24.dp)
         )
 
@@ -105,8 +100,43 @@ private fun SettingsContent(
             AddTypeButton(onClick = onAddClick)
         }
 
+        // 숨김 처리된 타입이 있을 때만 목록을 보여준다. 수정 화면에서 복구할 수 있다.
+        if (uiState.hiddenLogTypes.isNotEmpty()) {
+            SectionTitle(
+                text = stringResource(R.string.hidden_log_type_section_title),
+                modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 24.dp)
+            )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, top = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                uiState.hiddenLogTypes.forEach { logType ->
+                    LogTypeCard(
+                        logType = logType,
+                        onEditClick = { onEditClick(logType.id) },
+                    )
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
     }
+}
+
+@Composable
+private fun SectionTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.72.sp,
+        color = TextTertiary,
+        lineHeight = 18.sp,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -237,7 +267,10 @@ private fun PreviewSettingsScreen() {
             logTypes = listOf(
                 LogType("일하는 중", "play_arrow", Color(0xFF4ADE80), true),
                 LogType("쉬는 중", "free_breakfast", Color(0xFFFB923C), false),
-            )
+            ),
+            hiddenLogTypes = listOf(
+                LogType("공부 중", "menu_book", Color(0xFFA78BFA), true),
+            ),
         ),
         onAddClick = {},
         onEditClick = {},

@@ -15,7 +15,6 @@
     <string name="label_efficiency">효율</string>
     <string name="label_rest">휴식</string>
     <string name="session_log_title">세션 기록</string>
-    <string name="today_work_total">오늘 작업 %1$s</string>
 
     <!-- Settings -->
     <string name="settings_label">설정</string>
@@ -24,6 +23,7 @@
     <string name="efficiency_excluded">효율성 미포함</string>
     <string name="btn_edit">수정</string>
     <string name="btn_add_type">+  새 타입 추가</string>
+    <string name="hidden_log_type_section_title">숨김 처리된 로그 타입</string>
 
     <!-- Log type add/edit form -->
     <string name="log_type_add_title">타입 추가</string>
@@ -37,6 +37,14 @@
     <string name="segment_exclude">미포함</string>
     <string name="btn_add">추가</string>
     <string name="btn_save">저장</string>
+    <string name="btn_delete">삭제</string>
+    <string name="btn_hide">숨김</string>
+    <string name="btn_restore">복구</string>
+    <string name="btn_cancel">취소</string>
+    <string name="dialog_delete_type_title">타입 삭제</string>
+    <string name="dialog_delete_type_message">타입을 삭제합니다</string>
+    <string name="dialog_hide_type_title">타입 숨김</string>
+    <string name="dialog_hide_type_message">관련 기록이 존재하여 타입을 삭제할 수 없습니다. 대신 숨김 처리합니다.</string>
 
     <!-- History -->
     <string name="history_title">%1$s 생산성</string>

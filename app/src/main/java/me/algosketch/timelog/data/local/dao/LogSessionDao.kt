@@ -21,6 +21,9 @@ interface LogSessionDao {
     @Query("SELECT * FROM log_sessions ORDER BY endedAt DESC LIMIT 1")
     suspend fun getLastSession(): LogSessionEntity?
 
+    @Query("SELECT COUNT(*) FROM log_sessions WHERE typeId = :typeId")
+    suspend fun countByType(typeId: Int): Int
+
     @Query("SELECT * FROM log_sessions WHERE id = :id")
     suspend fun getById(id: Int): LogSessionEntity?
 
