@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.algosketch.timelog.R
-import me.algosketch.timelog.data.ActiveSessionHolder
 import me.algosketch.timelog.data.LogRepository
+import me.algosketch.timelog.data.SessionRecorder
 import me.algosketch.timelog.data.local.entity.LogSessionEntity
 import me.algosketch.timelog.data.local.entity.LogTypeEntity
 import me.algosketch.timelog.notification.RecordingNotifier
@@ -35,7 +35,7 @@ class StopWatchViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val repository: LogRepository,
     private val recordingNotifier: RecordingNotifier,
-    private val activeSessionHolder: ActiveSessionHolder,
+    private val sessionRecorder: SessionRecorder,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StopWatchUiState())
@@ -65,14 +65,46 @@ class StopWatchViewModel @Inject constructor(
                 updateRecordingNotification()
             }
         }
+        // 프로세스가 종료되기 전에 기록 중이던 세션이 있으면 이어서 기록한다.
+        restoreActiveSession()
         viewModelScope.launch {
             loadLastType()
         }
         observeTodaySessions()
-        viewModelScope.launch {
-            recordingNotifier.stopRequests.collect { onStopClick() }
-        }
+        observeExternalStop()
         scheduleMidnightRollover()
+    }
+
+    /**
+     * 디스크에 남아 있는 진행 중 세션을 복원한다. 그 사이 날짜가 바뀌었으면 지난 날짜분은 자정마다 끊어 저장하고
+     * 오늘 0시부터 이어서 기록한다.
+     */
+    private fun restoreActiveSession() {
+        val session = sessionRecorder.splitBefore(currentDay.value) ?: return
+        resumeSession(session.typeId, session.startedAt)
+    }
+
+    /** 알림의 정지 버튼처럼 화면 밖에서 세션이 저장·종료되면 정지 상태로 바꾼다. */
+    private fun observeExternalStop() {
+        viewModelScope.launch {
+            sessionRecorder.activeSession.collect { session ->
+                if (session != null || _uiState.value.activeTypeId == null) return@collect
+                timerJob?.cancel()
+                val elapsed = sessionStartTime
+                    ?.let { ChronoUnit.SECONDS.between(it, LocalDateTime.now()) }
+                    ?: 0L
+                sessionStartTime = null
+                _uiState.update { state ->
+                    state.copy(
+                        activeTypeId = null,
+                        currentSessionTime = formatElapsed(elapsed),
+                        logTypes = buildLogTypeUiItems(activeTypeId = null),
+                        todaySummary = computeTodaySummary(activeTypeId = null),
+                    )
+                }
+                updateRecordingNotification()
+            }
+        }
     }
 
     fun onAppBackground() {
@@ -171,7 +203,7 @@ class StopWatchViewModel @Inject constructor(
         rolloverIfDayChanged()
         val current = _uiState.value.activeTypeId ?: return
         finishSession(current)
-        activeSessionHolder.set(null)
+        sessionStartTime = null
         _uiState.update { it.copy(
             activeTypeId = null,
             logTypes = buildLogTypeUiItems(activeTypeId = null),
@@ -180,14 +212,22 @@ class StopWatchViewModel @Inject constructor(
     }
 
     private fun startSession(typeId: Int) {
+        // 시작하는 순간 디스크에 기록해, 프로세스가 종료되어도 진행 중 세션이 남게 한다.
+        val session = sessionRecorder.start(typeId, LocalDateTime.now())
+        resumeSession(session.typeId, session.startedAt)
+    }
+
+    /** [startedAt]부터 진행 중인 세션을 화면에 반영하고 1초마다 경과 시간을 갱신한다. */
+    private fun resumeSession(typeId: Int, startedAt: LocalDateTime) {
         timerJob?.cancel()
-        sessionStartTime = LocalDateTime.now()
-        activeSessionHolder.set(sessionStartTime)
+        sessionStartTime = startedAt
+        val initialElapsed = ChronoUnit.SECONDS.between(startedAt, LocalDateTime.now())
         _uiState.update { it.copy(
             activeTypeId = typeId,
             lastTypeId = typeId,
-            currentSessionTime = formatElapsed(0L),
-            logTypes = buildLogTypeUiItems(activeTypeId = typeId),
+            currentSessionTime = formatElapsed(initialElapsed),
+            logTypes = buildLogTypeUiItems(activeTypeId = typeId, activeElapsed = initialElapsed),
+            todaySummary = computeTodaySummary(activeTypeId = typeId, activeElapsed = initialElapsed),
         ) }
         timerJob = viewModelScope.launch {
             while (true) {
@@ -212,7 +252,8 @@ class StopWatchViewModel @Inject constructor(
 
         // 저장 후 DB 구독으로 다시 계산되지만, 그 사이 누적 시간이 잠깐 줄어 보이지 않도록 먼저 더해 둔다.
         accumulatedSeconds[typeId] = (accumulatedSeconds[typeId] ?: 0L) + elapsed
-        viewModelScope.launch { repository.saveSession(typeId, startTime, endTime) }
+        // 화면이 곧바로 사라져도 저장이 취소되지 않도록 앱 스코프에서 저장한다.
+        sessionRecorder.stop(endTime)
 
         _uiState.update { state ->
             state.copy(
@@ -234,19 +275,9 @@ class StopWatchViewModel @Inject constructor(
         currentDay.value = today
 
         val activeTypeId = _uiState.value.activeTypeId
-        val startTime = sessionStartTime
-        if (activeTypeId != null && startTime != null) {
-            // 여러 날에 걸쳐 있으면 날짜마다 끊어서 저장한다.
-            val midnight = today.atStartOfDay()
-            var segmentStart: LocalDateTime = startTime
-            while (segmentStart < midnight) {
-                val segmentEnd = segmentStart.toLocalDate().plusDays(1).atStartOfDay()
-                val start = segmentStart
-                viewModelScope.launch { repository.saveSession(activeTypeId, start, segmentEnd) }
-                segmentStart = segmentEnd
-            }
-            sessionStartTime = segmentStart
-            activeSessionHolder.set(segmentStart)
+        if (activeTypeId != null) {
+            // 여러 날에 걸쳐 있으면 날짜마다 끊어서 저장하고, 오늘 0시부터 이어서 기록한다.
+            sessionRecorder.splitBefore(today)?.let { sessionStartTime = it.startedAt }
         }
 
         todaySessions = emptyList()
@@ -364,8 +395,8 @@ class StopWatchViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         timerJob?.cancel()
-        recordingNotifier.cancel()
-        activeSessionHolder.set(null)
+        // 진행 중 세션은 디스크에 남아 다음 실행 때 이어지므로 지우지 않는다.
+        // 기록 중 알림도 남겨 두어, 화면 없이도 정지 버튼으로 저장할 수 있게 한다.
     }
 
     private companion object {
