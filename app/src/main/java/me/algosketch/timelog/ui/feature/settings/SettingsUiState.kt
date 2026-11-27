@@ -12,4 +12,5 @@ data class LogType(
 
 data class SettingsUiState(
     val logTypes: List<LogType> = emptyList(),
+    val hiddenLogTypes: List<LogType> = emptyList(),
 )
