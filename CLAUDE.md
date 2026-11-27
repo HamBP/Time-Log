@@ -55,7 +55,7 @@ The app is fully localized. **Korean is the base locale** living in `res/values/
 - 대답은 한국어로.
 - 코드 변경 후 빌드(`./gradlew assembleDebug`)에 성공하면 별도 요청 없이 커밋한다. 실패하면 커밋하지 않고 보고한다. `main`이나 `develop`에 있으면 `develop`에서 작업 브랜치를 새로 만든 뒤 커밋한다.
 - 커밋은 하나로 몰지 말고 리뷰하기 좋은 단위로 나눈다.
-- 이슈 수정을 지시받으면 `develop`에서 `feat/<이슈번호>` 브랜치를 만들고, 구현이 끝나면 push 후 PR(base `develop`, `--assignee @me`)까지 올린다. `main`에는 직접 작업하지 않는다. 이슈가 아닌 작업은 push·PR을 자동으로 하지 않는다.
+- 이슈 수정을 지시받으면 `develop`에서 `feat/<이슈번호>` 브랜치를 만들고, 구현이 끝나면 push 후 PR(base `develop`, `--assignee @me`)까지 올린다. `main`에는 직접 작업하지 않는다. `develop`에 머지하면 이슈가 자동으로 닫히지 않으므로, PR을 머지한 뒤 연결된 이슈를 `gh issue close`로 직접 닫는다. 이슈가 아닌 작업은 push·PR을 자동으로 하지 않는다.
 - 프롬프트마다 docs 수정이 필요한지 판단해 필요하면 수정한다.
 
 ## 프로젝트 문서 (docs/)
