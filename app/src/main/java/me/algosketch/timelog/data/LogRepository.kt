@@ -70,7 +70,7 @@ class LogRepository @Inject constructor(
 
     /** 저장된 세션이 있거나, 지금 이 타입으로 기록 중이면 관련 기록이 있는 것으로 본다. */
     suspend fun hasRelatedRecords(typeId: Int): Boolean =
-        activeSessionHolder.typeId.value == typeId || logSessionDao.countByType(typeId) > 0
+        activeSessionHolder.session.value?.typeId == typeId || logSessionDao.countByType(typeId) > 0
 
     /**
      * 관련 기록이 없으면 타입을 삭제하고, 있으면 기록을 보존하기 위해 숨김 처리한다.
