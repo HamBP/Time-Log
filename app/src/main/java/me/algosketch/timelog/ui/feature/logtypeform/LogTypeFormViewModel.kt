@@ -38,6 +38,7 @@ class LogTypeFormViewModel @Inject constructor(
                     selectedColorIndex = colorIndex,
                     includeEfficiency = entity.includeEfficiency,
                     isEditMode = true,
+                    isHidden = !entity.isActive,
                 )
             }
         }
@@ -72,6 +73,42 @@ class LogTypeFormViewModel @Inject constructor(
                 repository.updateLogType(id, state.name, colorHex, icon, state.includeEfficiency)
             }
             onSaved()
+        }
+    }
+
+    /** 관련 기록 유무에 따라 삭제 또는 숨김 확인 다이얼로그를 띄운다. */
+    fun onDeleteClick() {
+        val id = editingId ?: return
+        viewModelScope.launch {
+            val dialog = if (repository.hasRelatedRecords(id)) DeleteDialog.Hide else DeleteDialog.Delete
+            _uiState.update { it.copy(deleteDialog = dialog) }
+        }
+    }
+
+    fun onDeleteDismiss() {
+        _uiState.update { it.copy(deleteDialog = null) }
+    }
+
+    fun onDeleteConfirm(onDone: () -> Unit) {
+        val id = editingId ?: return
+        _uiState.update { it.copy(deleteDialog = null) }
+        viewModelScope.launch {
+            repository.deleteOrHideLogType(id)
+            onDone()
+        }
+    }
+
+    /** 숨김 타입을 화면에서 고친 내용과 함께 다시 활성화한다. */
+    fun onRestore(onDone: () -> Unit) {
+        val id = editingId ?: return
+        val state = _uiState.value
+        if (state.name.isBlank()) return
+        val colorHex = colorOptions[state.selectedColorIndex].toHex()
+        val icon = iconOptions[state.selectedIconIndex]
+        viewModelScope.launch {
+            repository.updateLogType(id, state.name, colorHex, icon, state.includeEfficiency)
+            repository.restoreLogType(id)
+            onDone()
         }
     }
 }
